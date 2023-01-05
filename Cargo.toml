@@ -1,0 +1,7 @@
+[package]
+name = "corporum"
+version = "0.1.0"
+edition = "2021"
+authors = ["Fero Forgac <fero4gac@protonmail.com>"]
+
+[dependencies]
