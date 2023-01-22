@@ -17,33 +17,21 @@ impl Document {
     pub fn add_sentence(&mut self, tokens: Vec<&str>, lang: &str) -> u32 {
         if let Some(sentences) = self.sentences.as_mut() {
             let mut sent_id: u32 = 0;
-            if let Some(sents) = sentences.sents.as_mut() {
-                for sent in sents.iter() {
-                    if sent.get_sentence_id() > sent_id {
-                        sent_id = sent.get_sentence_id()
-                    }
+
+            for sent in sentences.iter() {
+                if sent.get_sentence_id() > sent_id {
+                    sent_id = sent.get_sentence_id()
                 }
             }
+
             let sent = Sentence::new(sent_id + 1, &tokens, lang, SentenceType::Source);
-            self.sentences
-                .as_mut()
-                .unwrap()
-                .sents
-                .as_mut()
-                .unwrap()
-                .push(sent);
+            self.sentences.as_mut().unwrap().push(sent);
             sent_id + 1
         } else {
-            let mut vec: Vec<Sentence> = Vec::new();
+            let mut sents: Vec<Sentence> = Vec::new();
             let sent = Sentence::new(0, &tokens, lang, SentenceType::Source);
-            vec.push(sent);
-
-            let sents = Sentences {
-                sents: Some(Vec::new()),
-            };
-
+            sents.push(sent);
             self.sentences = Some(sents);
-            self.sentences.as_mut().unwrap().sents = Some(vec);
             0
         }
     }
@@ -52,18 +40,12 @@ impl Document {
         self.sentences
             .as_ref()
             .unwrap()
-            .sents
-            .as_ref()
-            .unwrap()
             .iter()
             .find(|&sent| sent.id == id)
     }
 
     pub fn get_sentence_by_id_mut(&mut self, id: u32) -> Option<&mut Sentence> {
         self.sentences
-            .as_mut()
-            .unwrap()
-            .sents
             .as_mut()
             .unwrap()
             .iter_mut()
@@ -79,24 +61,22 @@ impl Document {
             Some(translations) => {
                 let mut trans_id: u32 = 0;
 
-                for tran in translations.translations.iter() {
+                for tran in translations.iter() {
                     if tran.id > sentence_id {
                         trans_id = tran.id
                     }
                 }
 
-                let t = Translation::new(trans_id, &tokens, lang, SentenceType::Translation);
+                let t = Translation::new(trans_id + 1, &tokens, lang, SentenceType::Translation);
 
-                translations.translations.push(t);
+                translations.push(t);
             }
             None => {
                 let mut translations = Vec::new();
                 let t = Translation::new(0, &tokens, lang, SentenceType::Translation);
                 translations.push(t);
 
-                sentence.translations = Some(Translations {
-                    translations: translations,
-                });
+                sentence.translations = Some(translations);
             }
         }
     }

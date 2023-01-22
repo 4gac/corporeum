@@ -6,7 +6,7 @@ use serde::Serialize;
 #[derive(Deserialize, Serialize, Debug, Default)]
 #[serde(rename = "corpus")]
 pub struct Corpus {
-    #[serde(rename = "metadata")]
+    #[serde(rename = "metadata", skip_serializing_if = "Option::is_none")]
     pub(crate) metadata: Option<Metadata>,
     #[serde(rename = "documents")]
     pub(crate) documents: Documents,
@@ -55,7 +55,7 @@ pub struct Document {
     pub(crate) source: Option<String>,
     pub(crate) description: Option<Description>,
     #[serde(rename = "sentences")]
-    pub(crate) sentences: Option<Sentences>,
+    pub(crate) sentences: Option<Vec<Sentence>>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -72,7 +72,7 @@ pub struct Sentence {
     pub(crate) lang: String,                // language identifier
     #[serde(rename = "tokens")]
     pub(crate) tokens: Tokens, // not an Option, because sentence cannot be empty
-    pub(crate) translations: Option<Translations>,
+    pub(crate) translations: Option<Vec<Translation>>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
