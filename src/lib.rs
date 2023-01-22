@@ -5,6 +5,7 @@ mod document;
 mod metadata;
 pub(crate) mod sentence;
 mod token;
+pub(crate) mod translation;
 pub use corporeum::Corporeum;
 
 mod schema;
