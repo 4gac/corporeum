@@ -46,10 +46,12 @@ pub struct Description {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Document {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) description: Option<Description>,
     pub(crate) id: u32,
-    #[serde(rename = "sentences")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) sentences: Option<Vec<Sentence>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) source: Option<String>,
 }
 
