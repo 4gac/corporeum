@@ -1,8 +1,16 @@
 use crate::schema::{Corpus, Document, Metadata};
 
 impl Corpus {
+    pub fn add_metadata(&mut self, name: &str) {
+        self.metadata = Some(Metadata::new(name));
+    }
+
     pub fn get_metadata(&self) -> Option<&Metadata> {
         self.metadata.as_ref()
+    }
+
+    pub fn get_metadata_mut(&mut self) -> Option<&mut Metadata> {
+        self.metadata.as_mut()
     }
     pub fn get_documents(&self) -> Option<&Vec<Document>> {
         Some(self.documents.as_ref())

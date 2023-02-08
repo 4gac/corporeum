@@ -6,48 +6,40 @@ use serde::Serialize;
 #[derive(Deserialize, Serialize, Debug, Default)]
 #[serde(rename = "corpus")]
 pub struct Corpus {
-    #[serde(rename = "documents")]
-    pub(crate) documents: Vec<Document>,
     #[serde(rename = "metadata", skip_serializing_if = "Option::is_none")]
     pub(crate) metadata: Option<Metadata>,
+    #[serde(rename = "documents")]
+    pub(crate) documents: Vec<Document>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Metadata {
-    #[serde(rename = "author", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) authors: Option<Vec<Author>>,
     // this does not follow semantic versioning, it is just a number
-    #[serde(rename = "created", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) created: Option<String>,
-    #[serde(rename = "description", skip_serializing_if = "Option::is_none")]
-    pub(crate) description: Option<Description>,
-    #[serde(rename = "modified", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) modified: Option<String>,
-    #[serde(rename = "name", skip_serializing_if = "Option::is_none")]
-    pub(crate) name: Option<Name>,
+    pub(crate) name: String,
     #[serde(rename = "version")]
     pub(crate) version: u16,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct Name {
-    pub(crate) text: String,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
 pub struct Author {
-    pub(crate) text: String,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Description {
-    pub(crate) text: String,
+    pub(crate) first_name: String,
+    pub(crate) last_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) mail: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Document {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) description: Option<Description>,
+    pub(crate) description: Option<String>,
     pub(crate) id: u32,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) sentences: Option<Vec<Sentence>>,

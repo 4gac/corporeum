@@ -1,3 +1,5 @@
+use crate::Metadata;
+
 use super::schema::Corpus;
 use serde_json;
 use std::{fs, io::Write, path::Path};

@@ -1,5 +1,6 @@
 pub mod corpus;
 
+pub(crate) mod author;
 mod corporeum;
 mod document;
 mod metadata;
