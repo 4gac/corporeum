@@ -1,7 +1,6 @@
 use crate::schema::Sentence;
 use crate::schema::SentenceType;
 use crate::schema::Token;
-use crate::schema::Tokens;
 
 impl Sentence {
     pub fn new(id: u32, tokens: &Vec<&str>, lang: &str, sent_type: SentenceType) -> Sentence {
@@ -12,13 +11,11 @@ impl Sentence {
             words.push(t);
         }
 
-        let tokens = Tokens { token: words };
-
         Sentence {
-            id: id,
+            id,
             sentence_type: sent_type,
             lang: lang.to_string(),
-            tokens: tokens,
+            tokens: words,
             translations: None,
         }
     }

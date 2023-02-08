@@ -1,9 +1,9 @@
-use crate::schema::{Document, Sentence, SentenceType, Sentences, Translation, Translations};
+use crate::schema::{Document, Sentence, SentenceType, Translation};
 
 impl Document {
     pub fn new(id: u32) -> Document {
         Document {
-            id: id,
+            id,
             source: None,
             description: None,
             sentences: None,

@@ -6,26 +6,27 @@ use serde::Serialize;
 #[derive(Deserialize, Serialize, Debug, Default)]
 #[serde(rename = "corpus")]
 pub struct Corpus {
+    #[serde(rename = "documents")]
+    pub(crate) documents: Vec<Document>,
     #[serde(rename = "metadata", skip_serializing_if = "Option::is_none")]
     pub(crate) metadata: Option<Metadata>,
-    #[serde(rename = "documents")]
-    pub(crate) documents: Documents,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Metadata {
-    #[serde(rename = "name", skip_serializing_if = "Option::is_none")]
-    pub(crate) name: Option<Name>,
     #[serde(rename = "author", skip_serializing_if = "Option::is_none")]
     pub(crate) authors: Option<Vec<Author>>,
-    #[serde(rename = "description", skip_serializing_if = "Option::is_none")]
-    pub(crate) description: Option<Description>,
-    #[serde(rename = "version")]
-    pub(crate) version: u16, // this does not follow semantic versioning, it is just a number
+    // this does not follow semantic versioning, it is just a number
     #[serde(rename = "created", skip_serializing_if = "Option::is_none")]
     pub(crate) created: Option<String>,
+    #[serde(rename = "description", skip_serializing_if = "Option::is_none")]
+    pub(crate) description: Option<Description>,
     #[serde(rename = "modified", skip_serializing_if = "Option::is_none")]
     pub(crate) modified: Option<String>,
+    #[serde(rename = "name", skip_serializing_if = "Option::is_none")]
+    pub(crate) name: Option<Name>,
+    #[serde(rename = "version")]
+    pub(crate) version: u16,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -43,42 +44,24 @@ pub struct Description {
     pub(crate) text: String,
 }
 
-#[derive(Deserialize, Serialize, Debug, Default)]
-pub struct Documents {
-    #[serde(rename = "document")]
-    pub(crate) docs: Option<Vec<Document>>,
-}
-
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Document {
-    pub(crate) id: u32,
-    pub(crate) source: Option<String>,
     pub(crate) description: Option<Description>,
+    pub(crate) id: u32,
     #[serde(rename = "sentences")]
     pub(crate) sentences: Option<Vec<Sentence>>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Sentences {
-    #[serde(rename = "sentence")]
-    pub(crate) sents: Option<Vec<Sentence>>,
+    pub(crate) source: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Sentence {
     pub(crate) id: u32,
-    // TODO features, labels
-    pub(crate) sentence_type: SentenceType, // TODO enum - could be either 'source' or 'target'
-    pub(crate) lang: String,                // language identifier
-    #[serde(rename = "tokens")]
-    pub(crate) tokens: Tokens, // not an Option, because sentence cannot be empty
+    // TODO enum - could be either 'source' or 'target'
+    pub(crate) lang: String,                // TODO features, labels
+    pub(crate) sentence_type: SentenceType, // language identifier
+    pub(crate) tokens: Vec<Token>,          // not an Option, because sentence cannot be empty
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) translations: Option<Vec<Translation>>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Tokens {
-    #[serde(rename = "token")]
-    pub(crate) token: Vec<Token>, // sentence cannot be empty
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -97,9 +80,9 @@ pub struct Translations {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Translation {
     pub(crate) id: u32,
-    pub(crate) sentence_type: SentenceType,
     pub(crate) lang: String,
-    pub(crate) tokens: Tokens,
+    pub(crate) sentence_type: SentenceType,
+    pub(crate) tokens: Vec<Token>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
