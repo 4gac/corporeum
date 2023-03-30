@@ -1,3 +1,9 @@
+use rust_tokenizers::{
+    adapters::Example,
+    tokenizer::{BertTokenizer, Tokenizer, TruncationStrategy},
+    vocab::{BertVocab, Vocab},
+};
+
 use crate::schema::{Document, Sentence, SentenceType, Translation};
 
 impl Document {
@@ -14,7 +20,40 @@ impl Document {
         self.id
     }
 
-    pub fn add_sentence(&mut self, tokens: Vec<&str>, lang: &str) -> u32 {
+    // add string and use internal tokenizer
+    pub fn add_sentence(&mut self, sentence: &str, lang: &str) -> &mut Sentence {
+        let vocab_path = "path/to/vocab";
+        let vocab = BertVocab::from_file(vocab_path).unwrap();
+
+        // let test_sentence = Example::new_from_string("This is a sample sentence to be tokenized");
+        let bert_tokenizer: BertTokenizer = BertTokenizer::from_existing_vocab(vocab, true, true);
+
+        let binding = bert_tokenizer.tokenize(sentence);
+        let tokens: Vec<&str> = binding.iter().map(|s| s.as_str()).collect();
+
+        if let Some(sentences) = self.sentences.as_mut() {
+            let mut sent_id: u32 = 0;
+
+            for sent in sentences.iter() {
+                if sent.get_sentence_id() > sent_id {
+                    sent_id = sent.get_sentence_id()
+                }
+            }
+
+            let mut sent = Sentence::new(sent_id + 1, &tokens, lang, SentenceType::Source);
+            self.sentences.as_mut().unwrap().push(sent);
+            sent_id + 1
+        } else {
+            let mut sents: Vec<Sentence> = Vec::new();
+            let sent = Sentence::new(0, &tokens, lang, SentenceType::Source);
+            sents.push(sent);
+            self.sentences = Some(sents);
+            0
+        }
+    }
+
+    // add already tokenized sentence to the document
+    pub fn add_sentence_tokenized(&mut self, tokens: Vec<&str>, lang: &str) -> u32 {
         if let Some(sentences) = self.sentences.as_mut() {
             let mut sent_id: u32 = 0;
 
