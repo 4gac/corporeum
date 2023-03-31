@@ -2,7 +2,8 @@ use crate::Metadata;
 
 use super::schema::Corpus;
 use serde_json;
-use std::{fs, io::Write, path::Path};
+use serde_pickle;
+use std::{ffi::OsStr, fs, io::Write, path::Path};
 
 pub struct Corporeum<'a> {
     original_file_path: &'a Path,
@@ -28,7 +29,14 @@ impl Corporeum<'_> {
         }
 
         // parse json file
-        let mut corpus: Corpus = serde_json::from_str(&data).unwrap();
+        let mut corpus: Corpus = match source.extension().and_then(OsStr::to_str).unwrap() {
+            "json" => serde_json::from_str(&data).unwrap(),
+            "pickle" => serde_pickle::from_slice(&data.as_bytes(), Default::default()).unwrap(),
+            _ => panic!("Unsupported file format"),
+        };
+        // let mut corpus: Corpus = serde_json::from_str(&data).unwrap();
+        // let mut corp: Corpus =
+        // serde_pickle::from_slice(&data.as_bytes(), Default::default()).unwrap();
         // iterate over docs and setup last sentence id,
         // so we do not have search for last available id every time we add new sentence
         corpus
@@ -43,8 +51,12 @@ impl Corporeum<'_> {
     }
 
     // TODO return Result<OK,FailedToWrite>
-    pub fn save(&self) {
-        let buffer = serde_json::to_vec(&self.corpus).unwrap();
+    pub fn save_json(&self, pretty: bool) {
+        let buffer = if pretty {
+            serde_json::to_vec_pretty(&self.corpus).unwrap()
+        } else {
+            serde_json::to_vec(&self.corpus).unwrap()
+        };
 
         let dest: &Path = self.original_file_path;
 
@@ -58,11 +70,16 @@ impl Corporeum<'_> {
     }
 
     // TODO return Result<OK,FailedToWrite>
-    pub fn save_as(&self, destination: &mut Path) {
+    pub fn save_as_json(&self, destination: &mut Path, pretty: bool) {
         // let mut buffer = Vec::new();
 
         // serde_xml_rs::to_writer(&mut buffer, &self.corpus).unwrap();
-        let buffer = serde_json::to_vec(&self.corpus).unwrap();
+        let buffer = if pretty {
+            serde_json::to_vec(&self.corpus).unwrap()
+        } else {
+            serde_json::to_vec_pretty(&self.corpus).unwrap()
+        };
+
         if destination.is_file() {
             let file = fs::OpenOptions::new()
                 .write(true)
@@ -72,6 +89,20 @@ impl Corporeum<'_> {
 
             file.unwrap().write_all(&buffer).unwrap();
         }
+    }
+
+    pub fn save_pickle(&self) {
+        let buffer = serde_pickle::to_vec(&self.corpus, Default::default()).unwrap();
+
+        let dest: &Path = self.original_file_path;
+
+        let file = fs::OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .create(true)
+            .open(dest);
+
+        file.unwrap().write_all(&buffer).unwrap();
     }
 
     pub fn get_corpus(&self) -> &Corpus {
