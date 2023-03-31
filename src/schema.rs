@@ -6,23 +6,23 @@ use serde::Serialize;
 #[derive(Deserialize, Serialize, Debug, Default)]
 #[serde(rename = "corpus")]
 pub struct Corpus {
-    #[serde(rename = "metadata", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) metadata: Option<Metadata>,
-    #[serde(rename = "documents")]
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub(crate) documents: Vec<Document>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Metadata {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) authors: Option<Vec<Author>>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub(crate) authors: Vec<Author>,
     // this does not follow semantic versioning, it is just a number
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) created: Option<String>,
+    pub(crate) created: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) modified: Option<String>,
+    pub(crate) modified: Option<i64>,
     pub(crate) name: String,
     #[serde(rename = "version")]
     pub(crate) version: u16,
@@ -41,10 +41,12 @@ pub struct Document {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) description: Option<String>,
     pub(crate) id: u32,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) sentences: Option<Vec<Sentence>>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub(crate) sentences: Vec<Sentence>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) source: Option<String>,
+    #[serde(skip_serializing)]
+    pub(crate) last_sentence_id: u32, // cache next id
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -54,8 +56,8 @@ pub struct Sentence {
     pub(crate) lang: String,                // TODO features, labels
     pub(crate) sentence_type: SentenceType, // language identifier
     pub(crate) tokens: Vec<Token>,          // not an Option, because sentence cannot be empty
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) translations: Option<Vec<Translation>>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub(crate) translations: Vec<Translation>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]

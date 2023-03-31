@@ -4,7 +4,7 @@ use crate::Metadata;
 impl Metadata {
     pub(crate) fn new(name: &str) -> Metadata {
         Metadata {
-            authors: None,
+            authors: Vec::new(),
             created: None,
             description: None,
             modified: None,
@@ -18,23 +18,17 @@ impl Metadata {
     }
 
     pub fn add_author(&mut self, first_name: &str, last_name: &str, mail: Option<&str>) {
-        let author = Author::new(first_name, last_name, mail);
-        if let Some(authors) = &mut self.authors {
-            authors.push(author);
-        } else {
-            self.authors = Some(vec![author]);
-        }
+        self.authors.push(Author::new(first_name, last_name, mail));
     }
 
-    pub fn get_authors(&self) -> Vec<&Author> {
-        let mut to_ret: Vec<&Author> = Vec::new();
+    // removes author(s) based on first and last name
+    pub fn remove_author(&mut self, first_name: &str, last_name: &str) {
+        self.authors
+            .retain(|a| a.first_name == first_name && a.last_name == last_name);
+    }
 
-        let authors = self.authors.as_ref().unwrap();
-        authors.iter().for_each(|author| {
-            to_ret.push(author);
-        });
-
-        to_ret
+    pub fn get_authors(&self) -> &Vec<Author> {
+        &self.authors
     }
 
     pub fn set_description(&mut self, desc: &str) {

@@ -1,6 +1,7 @@
 use crate::schema::Sentence;
 use crate::schema::SentenceType;
 use crate::schema::Token;
+use crate::schema::Translation;
 
 impl Sentence {
     pub fn new(id: u32, tokens: &Vec<&str>, lang: &str, sent_type: SentenceType) -> Sentence {
@@ -16,11 +17,20 @@ impl Sentence {
             sentence_type: sent_type,
             lang: lang.to_string(),
             tokens: words,
-            translations: None,
+            translations: Vec::new(),
         }
     }
 
     pub fn get_sentence_id(&self) -> u32 {
         self.id
+    }
+
+    pub fn add_translation(&mut self, tokens: Vec<&str>, lang: &str) {
+        self.translations.push(Translation::new(
+            0,
+            &tokens,
+            lang,
+            SentenceType::Translation,
+        ));
     }
 }

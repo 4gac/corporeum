@@ -26,7 +26,16 @@ impl Corporeum<'_> {
             // FIXME error handling
             data = fs::read_to_string(source).expect("Unable to read file");
         }
-        let corpus: Corpus = serde_json::from_str(&data).unwrap();
+
+        // parse json file
+        let mut corpus: Corpus = serde_json::from_str(&data).unwrap();
+        // iterate over docs and setup last sentence id,
+        // so we do not have search for last available id every time we add new sentence
+        corpus
+            .documents
+            .iter_mut()
+            .for_each(|doc| doc.last_sentence_id = doc.setup_last_sentence_id());
+
         Corporeum {
             original_file_path: source,
             corpus: corpus,
