@@ -67,11 +67,11 @@ pub struct Token {
     pub(crate) text: String,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Translations {
-    #[serde(rename = "translation")]
-    pub(crate) translations: Vec<Translation>,
-}
+// #[derive(Deserialize, Serialize, Debug)]
+// pub struct Translations {
+//     #[serde(rename = "translation")]
+//     pub(crate) translations: Vec<Translation>,
+// }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Translation {

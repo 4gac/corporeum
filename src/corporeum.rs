@@ -1,9 +1,16 @@
 use crate::Metadata;
 
 use super::schema::Corpus;
+use rmp_serde;
+use serde_cbor::de::from_slice;
+use serde_cbor::ser::{to_vec, to_vec_packed};
 use serde_json;
-use serde_pickle;
 use std::{ffi::OsStr, fs, io::Write, path::Path};
+
+const JSON: &str = "json";
+const PICKLE: &str = "pickle";
+const MSGPACK: &str = "msgpack";
+const CBOR: &str = "cbor";
 
 pub struct Corporeum<'a> {
     original_file_path: &'a Path,
@@ -26,12 +33,16 @@ impl Corporeum<'_> {
         if source.is_file() {
             // FIXME error handling
             data = fs::read_to_string(source).expect("Unable to read file");
+        } else {
+            panic!("Not a file");
         }
 
         // parse json file
         let mut corpus: Corpus = match source.extension().and_then(OsStr::to_str).unwrap() {
-            "json" => serde_json::from_str(&data).unwrap(),
-            "pickle" => serde_pickle::from_slice(&data.as_bytes(), Default::default()).unwrap(),
+            JSON => serde_json::from_str(&data).unwrap(),
+            PICKLE => serde_pickle::from_slice(&data.as_bytes(), Default::default()).unwrap(),
+            MSGPACK => rmp_serde::from_slice(&data.as_bytes()).unwrap(),
+            CBOR => serde_cbor::from_slice(&data.as_bytes()).unwrap(),
             _ => panic!("Unsupported file format"),
         };
         // let mut corpus: Corpus = serde_json::from_str(&data).unwrap();
@@ -58,7 +69,8 @@ impl Corporeum<'_> {
             serde_json::to_vec(&self.corpus).unwrap()
         };
 
-        let dest: &Path = self.original_file_path;
+        let dest = Path::with_extension(self.original_file_path, JSON);
+        let dest = dest.as_path();
 
         let file = fs::OpenOptions::new()
             .write(true)
@@ -81,11 +93,13 @@ impl Corporeum<'_> {
         };
 
         if destination.is_file() {
+            let dest = Path::with_extension(&destination, JSON);
+            let dest = dest.as_path();
             let file = fs::OpenOptions::new()
                 .write(true)
                 .truncate(true)
                 .create(true)
-                .open(destination);
+                .open(dest);
 
             file.unwrap().write_all(&buffer).unwrap();
         }
@@ -94,7 +108,8 @@ impl Corporeum<'_> {
     pub fn save_pickle(&self) {
         let buffer = serde_pickle::to_vec(&self.corpus, Default::default()).unwrap();
 
-        let dest: &Path = self.original_file_path;
+        let dest = Path::with_extension(self.original_file_path, PICKLE);
+        let dest = dest.as_path();
 
         let file = fs::OpenOptions::new()
             .write(true)
@@ -103,6 +118,94 @@ impl Corporeum<'_> {
             .open(dest);
 
         file.unwrap().write_all(&buffer).unwrap();
+    }
+
+    pub fn save_as_pickle(&self, destination: &mut Path) {
+        let buffer = serde_pickle::to_vec(&self.corpus, Default::default()).unwrap();
+
+        if destination.is_file() {
+            let dest = Path::with_extension(&destination, PICKLE);
+            let dest = dest.as_path();
+            let file = fs::OpenOptions::new()
+                .write(true)
+                .truncate(true)
+                .create(true)
+                .open(dest);
+
+            file.unwrap().write_all(&buffer).unwrap();
+        }
+    }
+
+    pub fn save_msgpack(&self) {
+        let buffer = rmp_serde::to_vec(&self.corpus).unwrap();
+
+        let dest = Path::with_extension(self.original_file_path, MSGPACK);
+        let dest = dest.as_path();
+
+        let file = fs::OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .create(true)
+            .open(dest);
+
+        file.unwrap().write_all(&buffer).unwrap();
+    }
+
+    pub fn save_as_msgpack(&self, destination: &mut Path) {
+        let buffer = rmp_serde::to_vec(&self.corpus).unwrap();
+
+        if destination.is_file() {
+            let dest = Path::with_extension(&destination, MSGPACK);
+            let dest = dest.as_path();
+
+            let file = fs::OpenOptions::new()
+                .write(true)
+                .truncate(true)
+                .create(true)
+                .open(dest);
+
+            file.unwrap().write_all(&buffer).unwrap();
+        }
+    }
+
+    pub fn save_cbor(&self, packed: bool) {
+        let buffer = if packed {
+            serde_cbor::ser::to_vec_packed(&self.corpus).unwrap()
+        } else {
+            serde_cbor::ser::to_vec(&self.corpus).unwrap()
+        };
+
+        let dest = Path::with_extension(self.original_file_path, CBOR);
+        let dest = dest.as_path();
+
+        let file = fs::OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .create(true)
+            .open(dest);
+
+        file.unwrap().write_all(&buffer).unwrap();
+    }
+
+    pub fn save_as_cbor(&self, destination: &Path, packed: bool) {
+        let buffer = if packed {
+            serde_cbor::ser::to_vec_packed(&self.corpus).unwrap()
+        } else {
+            serde_cbor::ser::to_vec(&self.corpus).unwrap()
+        };
+
+        if destination.is_file() {
+            let dest = Path::with_extension(&destination, CBOR);
+            let dest = dest.as_path();
+
+            let file = fs::OpenOptions::new()
+                .write(true)
+                .truncate(true)
+                .create(true)
+                .open(dest);
+
+            file.unwrap().write_all(&buffer).unwrap();
+        }
     }
 
     pub fn get_corpus(&self) -> &Corpus {
