@@ -57,7 +57,7 @@ pub struct Sentence {
     pub(crate) sentence_type: SentenceType, // language identifier
     pub(crate) tokens: Vec<Token>,          // not an Option, because sentence cannot be empty
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub(crate) translations: Vec<Translation>,
+    pub(crate) translations: Vec<Sentence>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
