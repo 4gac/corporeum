@@ -26,11 +26,7 @@ impl Sentence {
     }
 
     pub fn add_translation(&mut self, tokens: Vec<&str>, lang: &str) {
-        self.translations.push(Translation::new(
-            0,
-            &tokens,
-            lang,
-            SentenceType::Translation,
-        ));
+        self.translations
+            .push(Sentence::new(0, &tokens, lang, SentenceType::Translation));
     }
 }
