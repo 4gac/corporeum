@@ -5,13 +5,6 @@ use crate::schema::Translation;
 
 impl Sentence {
     pub fn new(id: u32, lang: &str) -> Sentence {
-        // let mut words: Vec<Token> = Vec::with_capacity(tokens.len());
-
-        // for (i, token) in tokens.iter().enumerate() {
-        //     let t = Token::new(i as u32, token);
-        //     words.push(t);
-        // }
-
         Sentence {
             id,
             lang: lang.to_string(),
@@ -20,7 +13,7 @@ impl Sentence {
         }
     }
 
-    pub fn get_sentence_id(&self) -> u32 {
+    pub fn sentence_id(&self) -> u32 {
         self.id
     }
 
@@ -38,11 +31,11 @@ impl Sentence {
         self.translations.push(translation);
     }
 
-    pub fn create_token(&self) -> Token {
+    pub fn create_token(&self, form: &str) -> Token {
         if self.tokens.is_empty() {
-            return Token::new(0, "");
+            return Token::new(0, form);
         }
-        Token::new(self.tokens.last().unwrap().id + 1, "")
+        Token::new(self.tokens.last().unwrap().id + 1, form)
     }
 
     pub fn add_token(&mut self, token: Token) {

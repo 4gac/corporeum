@@ -8,11 +8,11 @@ impl Token {
         }
     }
 
-    pub fn set_form(&mut self, form: &str) {
-        self.form = form.to_string();
+    pub fn form(&self) -> &str {
+        &self.form
     }
 
-    pub fn get_form(&self) -> &str {
-        &self.form
+    pub fn form_mut(&mut self) -> &mut String {
+        &mut self.form
     }
 }

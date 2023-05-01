@@ -17,7 +17,7 @@ impl Document {
         }
     }
 
-    pub fn get_doc_id(&self) -> u32 {
+    pub fn doc_id(&self) -> u32 {
         self.id
     }
 
@@ -36,11 +36,11 @@ impl Document {
         self.sentences.push(sent);
     }
 
-    pub fn get_sentence_by_id(&self, id: u32) -> Option<&Sentence> {
+    pub fn sentence_by_id(&self, id: u32) -> Option<&Sentence> {
         self.sentences.iter().find(|&sent| sent.id == id)
     }
 
-    pub fn get_sentence_by_id_mut(&mut self, id: u32) -> Option<&mut Sentence> {
+    pub fn sentence_by_id_mut(&mut self, id: u32) -> Option<&mut Sentence> {
         self.sentences.iter_mut().find(|sent| sent.id == id)
     }
 
