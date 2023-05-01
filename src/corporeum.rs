@@ -217,11 +217,11 @@ impl Corporeum<'_> {
         }
     }
 
-    pub fn get_corpus(&self) -> &Corpus {
+    pub fn corpus(&self) -> &Corpus {
         &self.corpus
     }
 
-    pub fn get_corpus_mut(&mut self) -> &mut Corpus {
+    pub fn corpus_mut(&mut self) -> &mut Corpus {
         &mut self.corpus
     }
 }
