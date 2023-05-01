@@ -64,6 +64,22 @@ pub struct Sentence {
 pub struct Token {
     pub(crate) id: u32,
     pub(crate) form: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) lemma: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) upos: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) xpos: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) feats: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) head: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) deprel: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) deps: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) misc: Option<String>, // this is here only for compatibilty reasons with CoNLL-U
 }
 
 // #[derive(Deserialize, Serialize, Debug)]
