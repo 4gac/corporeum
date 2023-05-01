@@ -1,9 +1,3 @@
-use rust_tokenizers::{
-    adapters::Example,
-    tokenizer::{BertTokenizer, Tokenizer, TruncationStrategy},
-    vocab::{BertVocab, Vocab},
-};
-
 use crate::schema::{Document, Sentence, SentenceType, Translation};
 
 impl Document {
