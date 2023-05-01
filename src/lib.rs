@@ -1,14 +1,11 @@
-pub mod corpus;
-
-pub(crate) mod author;
-mod corporeum;
-mod document;
-mod metadata;
-pub(crate) mod sentence;
-mod token;
-pub(crate) mod translation;
 pub use corporeum::Corporeum;
 
+mod author;
+mod corporeum;
+mod corpus;
+mod document;
+mod metadata;
 mod schema;
-pub use crate::schema::Corpus;
-pub use crate::schema::Metadata;
+mod sentence;
+mod token;
+mod translation;

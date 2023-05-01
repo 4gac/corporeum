@@ -1,6 +1,6 @@
-use crate::Metadata;
+use crate::schema::Metadata;
 
-use super::schema::Corpus;
+use crate::schema::Corpus;
 use rmp_serde;
 use serde_cbor::de::from_slice;
 use serde_cbor::ser::{to_vec, to_vec_packed};
@@ -51,10 +51,10 @@ impl Corporeum<'_> {
         // serde_pickle::from_slice(&data.as_bytes(), Default::default()).unwrap();
         // iterate over docs and setup last sentence id,
         // so we do not have search for last available id every time we add new sentence
-        corpus
-            .documents
-            .iter_mut()
-            .for_each(|doc| doc.last_sentence_id = doc.setup_last_sentence_id());
+        // corpus
+        //     .documents
+        //     .iter_mut()
+        //     .for_each(|doc| doc.last_sentence_id = doc.setup_last_sentence_id());
 
         Corporeum {
             original_file_path: source.as_ref(),

@@ -1,5 +1,5 @@
 use crate::schema::Author;
-use crate::Metadata;
+use crate::schema::Metadata;
 
 impl Metadata {
     pub(crate) fn new(name: &str) -> Metadata {

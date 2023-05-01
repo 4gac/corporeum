@@ -13,7 +13,7 @@ impl Document {
             source: None,
             description: None,
             sentences: Vec::new(),
-            last_sentence_id: 0,
+            // last_sentence_id: 0,
         }
     }
 
@@ -22,15 +22,18 @@ impl Document {
     }
 
     // add already tokenized sentence to the document
-    pub fn add_sentence(&mut self, tokens: Vec<&str>, lang: &str) -> &mut Sentence {
-        let sent = Sentence::new(
-            self.generate_new_sentence_id(),
-            &tokens,
-            lang,
-            SentenceType::Source,
-        );
+    pub fn create_sentence(&mut self, lang: &str) -> Sentence {
+        if self.sentences.is_empty() {
+            return Sentence::new(0, lang);
+        }
+        Sentence::new(self.sentences.last().unwrap().id + 1, lang)
+    }
+
+    pub fn add_sentence(&mut self, sent: Sentence) {
+        if sent.tokens.is_empty() {
+            return;
+        }
         self.sentences.push(sent);
-        self.sentences.last_mut().unwrap()
     }
 
     pub fn get_sentence_by_id(&self, id: u32) -> Option<&Sentence> {
@@ -42,12 +45,12 @@ impl Document {
     }
 
     // cache next_id once when loading file, so we do not have iterate over the structure every time
-    pub(crate) fn setup_last_sentence_id(&self) -> u32 {
-        self.sentences.last().unwrap().id + 1
-    }
+    // pub(crate) fn setup_last_sentence_id(&self) -> u32 {
+    //     self.sentences.last().unwrap().id + 1
+    // }
 
-    fn generate_new_sentence_id(&mut self) -> u32 {
-        self.last_sentence_id += 1;
-        self.last_sentence_id
-    }
+    // fn generate_new_sentence_id(&mut self) -> u32 {
+    //     self.last_sentence_id += 1;
+    //     self.last_sentence_id
+    // }
 }

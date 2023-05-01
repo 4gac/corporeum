@@ -45,17 +45,17 @@ pub struct Document {
     pub(crate) sentences: Vec<Sentence>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) source: Option<String>,
-    #[serde(skip_serializing)]
-    pub(crate) last_sentence_id: u32, // cache next id
+    // #[serde(skip_serializing)]
+    // pub(crate) last_sentence_id: u32, // cache next id
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Sentence {
     pub(crate) id: u32,
     // TODO enum - could be either 'source' or 'target'
-    pub(crate) lang: String,                // TODO features, labels
-    pub(crate) sentence_type: SentenceType, // language identifier
-    pub(crate) tokens: Vec<Token>,          // not an Option, because sentence cannot be empty
+    pub(crate) lang: String, // TODO features, labels
+    // pub(crate) sentence_type: SentenceType, // language identifier
+    pub(crate) tokens: Vec<Token>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub(crate) translations: Vec<Sentence>,
 }
@@ -63,8 +63,7 @@ pub struct Sentence {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Token {
     pub(crate) id: u32,
-    // morpho, tags, lema
-    pub(crate) text: String,
+    pub(crate) form: String,
 }
 
 // #[derive(Deserialize, Serialize, Debug)]
