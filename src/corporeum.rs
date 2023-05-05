@@ -11,6 +11,7 @@ const JSON: &str = "json";
 const PICKLE: &str = "pickle";
 const MSGPACK: &str = "msgpack";
 const CBOR: &str = "cbor";
+const BINCODE: &str = "bincode";
 
 pub struct Corporeum<'a> {
     original_file_path: &'a Path,
@@ -44,6 +45,7 @@ impl Corporeum<'_> {
             PICKLE => serde_pickle::from_slice(&data.as_bytes(), Default::default()).unwrap(),
             MSGPACK => rmp_serde::from_slice(&data.as_bytes()).unwrap(),
             CBOR => serde_cbor::from_slice(&data.as_bytes()).unwrap(),
+            BINCODE => bincode::deserialize(&data.as_bytes()).unwrap(),
             _ => panic!("Unsupported file format"),
         };
         // let mut corpus: Corpus = serde_json::from_str(&data).unwrap();
@@ -205,6 +207,40 @@ impl Corporeum<'_> {
 
         if destination.is_file() {
             let dest = Path::with_extension(&destination, CBOR);
+            let dest = dest.as_path();
+
+            let file = fs::OpenOptions::new()
+                .write(true)
+                .truncate(true)
+                .create(true)
+                .open(dest);
+
+            file.unwrap().write_all(&buffer).unwrap();
+        }
+    }
+
+    pub fn save_bincode(&self) {
+        let buffer = bincode::serialize(&self.corpus).unwrap();
+
+        let dest = Path::with_extension(self.original_file_path, BINCODE);
+        let dest = dest.as_path();
+
+        let file = fs::OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .create(true)
+            .open(dest);
+
+        file.unwrap().write_all(&buffer).unwrap();
+    }
+
+    pub fn save_as_bincode<P: AsRef<Path>>(&self, destination: &P) {
+        let buffer = bincode::serialize(&self.corpus).unwrap();
+
+        let destination = destination.as_ref();
+
+        if destination.is_file() {
+            let dest = Path::with_extension(&destination, BINCODE);
             let dest = dest.as_path();
 
             let file = fs::OpenOptions::new()
