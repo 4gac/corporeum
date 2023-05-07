@@ -30,10 +30,10 @@ impl Corporeum<'_> {
 
     // function to load an already existing corpus
     pub fn load<P: AsRef<Path>>(source: &P) -> Corporeum {
-        let mut data: String = String::new();
+        let mut data: Vec<u8> = Vec::new();
         if source.as_ref().is_file() {
             // FIXME error handling
-            data = fs::read_to_string(source).expect("Unable to read file");
+            data = fs::read(source).expect("Unable to read file");
         } else {
             panic!("Not a file");
         }
@@ -41,11 +41,11 @@ impl Corporeum<'_> {
         // parse json file
         let mut corpus: Corpus = match source.as_ref().extension().and_then(OsStr::to_str).unwrap()
         {
-            JSON => serde_json::from_str(&data).unwrap(),
-            PICKLE => serde_pickle::from_slice(&data.as_bytes(), Default::default()).unwrap(),
-            MSGPACK => rmp_serde::from_slice(&data.as_bytes()).unwrap(),
-            CBOR => serde_cbor::from_slice(&data.as_bytes()).unwrap(),
-            BINCODE => bincode::deserialize(&data.as_bytes()).unwrap(),
+            JSON => serde_json::from_slice(&data).unwrap(),
+            PICKLE => serde_pickle::from_slice(&data, Default::default()).unwrap(),
+            MSGPACK => rmp_serde::from_slice(&data).unwrap(),
+            CBOR => serde_cbor::from_slice(&data).unwrap(),
+            BINCODE => bincode::deserialize(&data).unwrap(),
             _ => panic!("Unsupported file format"),
         };
         // let mut corpus: Corpus = serde_json::from_str(&data).unwrap();

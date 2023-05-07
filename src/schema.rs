@@ -8,7 +8,7 @@ use serde::Serialize;
 pub struct Corpus {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) metadata: Option<Metadata>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub(crate) documents: Vec<Document>,
 }
 
