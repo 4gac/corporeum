@@ -14,7 +14,7 @@ pub struct Corpus {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Metadata {
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub(crate) authors: Vec<Author>,
     // this does not follow semantic versioning, it is just a number
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -41,7 +41,7 @@ pub struct Document {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) description: Option<String>,
     pub(crate) id: u32,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub(crate) sentences: Vec<Sentence>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) source: Option<String>,
@@ -56,7 +56,7 @@ pub struct Sentence {
     pub(crate) lang: String, // TODO features, labels
     // pub(crate) sentence_type: SentenceType, // language identifier
     pub(crate) tokens: Vec<Token>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub(crate) translations: Vec<Sentence>,
 }
 
