@@ -1,7 +1,5 @@
 use crate::schema::Sentence;
-use crate::schema::SentenceType;
 use crate::schema::Token;
-use crate::schema::Translation;
 
 impl Sentence {
     pub fn new(id: u32, lang: &str) -> Sentence {
@@ -43,6 +41,14 @@ impl Sentence {
             return;
         }
         self.tokens.push(token);
+    }
+
+    pub fn tokens(&self) -> &Vec<Token> {
+        &self.tokens
+    }
+
+    pub fn tokens_mut(&mut self) -> &mut Vec<Token> {
+        &mut self.tokens
     }
 
     // cache next_id once when loading file, so we do not have iterate over the structure every time

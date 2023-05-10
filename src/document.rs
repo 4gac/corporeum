@@ -1,4 +1,4 @@
-use crate::schema::{Document, Sentence, SentenceType, Translation};
+use crate::schema::{Document, Sentence};
 
 impl Document {
     pub fn new(id: u32) -> Document {
@@ -28,6 +28,14 @@ impl Document {
             return;
         }
         self.sentences.push(sent);
+    }
+
+    pub fn sentences(&self) -> &Vec<Sentence> {
+        &self.sentences
+    }
+
+    pub fn sentences_mut(&mut self) -> &mut Vec<Sentence> {
+        &mut self.sentences
     }
 
     pub fn sentence_by_id(&self, id: u32) -> Option<&Sentence> {
