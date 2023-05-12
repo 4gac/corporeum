@@ -1,11 +1,9 @@
 use crate::schema::Sentence;
-use crate::schema::SentenceType;
 use crate::schema::Token;
-use crate::schema::Translation;
 
 impl Sentence {
-    pub fn new(id: u32, lang: &str) -> Sentence {
-        Sentence {
+    pub fn new(id: u32, lang: &str) -> Self {
+        Self {
             id,
             lang: lang.to_string(),
             tokens: Vec::new(),
@@ -13,18 +11,18 @@ impl Sentence {
         }
     }
 
-    pub fn sentence_id(&self) -> u32 {
+    pub const fn sentence_id(&self) -> u32 {
         self.id
     }
 
-    pub fn create_translation(&self, lang: &str) -> Sentence {
+    pub fn create_translation(&self, lang: &str) -> Self {
         if self.translations.is_empty() {
-            return Sentence::new(0, lang);
+            return Self::new(0, lang);
         }
-        Sentence::new(self.translations.last().unwrap().id + 1, lang)
+        Self::new(self.translations.last().unwrap().id + 1, lang)
     }
 
-    pub fn add_translation(&mut self, translation: Sentence) {
+    pub fn add_translation(&mut self, translation: Self) {
         if translation.tokens.is_empty() {
             return;
         }

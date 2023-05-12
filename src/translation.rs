@@ -1,11 +1,13 @@
 use crate::schema::{SentenceType, Token, Translation};
 
 impl Translation {
-    pub fn get_translation_id(&self) -> u32 {
+    #[allow(unused)]
+    pub const fn get_translation_id(&self) -> u32 {
         self.id
     }
 
-    pub fn new(id: u32, tokens: &Vec<&str>, lang: &str, sent_type: SentenceType) -> Translation {
+    #[allow(unused)]
+    pub fn new(id: u32, tokens: &Vec<&str>, lang: &str, sent_type: SentenceType) -> Self {
         let mut words: Vec<Token> = Vec::with_capacity(tokens.len());
 
         for (i, token) in tokens.iter().enumerate() {
@@ -13,7 +15,7 @@ impl Translation {
             words.push(t);
         }
 
-        Translation {
+        Self {
             lang: lang.to_string(),
             id,
             sentence_type: sent_type,
