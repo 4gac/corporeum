@@ -118,7 +118,7 @@ impl TryFrom<&Path> for Compression {
         {
             "gz" | "zip" => Ok(Self::Deflate),
             "lz" | "xz" | "lzma" => Ok(Self::Lzma),
-            "corp" => Ok(Self::None),
+            "corp" | "cbor" => Ok(Self::None),
             _ => Err(()),
         }
     }
