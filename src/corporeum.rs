@@ -1,4 +1,6 @@
 use crate::schema::Corpus;
+use flate2::{read::GzDecoder, write::GzEncoder, Compression as FlateCompression};
+use lzma_rs::{xz_compress, xz_decompress};
 use std::{
     fs,
     io::{BufReader, Cursor, Read, Result as IoResult, Write},
@@ -37,12 +39,12 @@ impl Corporeum<'_> {
         match compression {
             Compression::None => (),
             Compression::Deflate => {
-                let mut decompressor = flate2::read::GzDecoder::new(file);
+                let mut decompressor = GzDecoder::new(file);
                 decompressor.read_to_end(&mut data)?;
             }
             Compression::Lzma => {
                 let mut reader = BufReader::new(file);
-                lzma_rs::xz_decompress(&mut reader, &mut data).unwrap();
+                xz_decompress(&mut reader, &mut data).unwrap();
             }
         }
 
@@ -83,13 +85,12 @@ impl Corporeum<'_> {
         match compression {
             Compression::None => file.write_all(&buffer),
             Compression::Deflate => {
-                let mut compressor =
-                    flate2::write::GzEncoder::new(file, flate2::Compression::best());
+                let mut compressor = GzEncoder::new(file, FlateCompression::best());
                 compressor.write_all(&buffer)
             }
             Compression::Lzma => {
                 let mut cursor = Cursor::new(buffer);
-                lzma_rs::xz_compress(&mut cursor, &mut file).unwrap();
+                xz_compress(&mut cursor, &mut file).unwrap();
                 Ok(())
             }
         }
