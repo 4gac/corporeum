@@ -1,3 +1,4 @@
+pub use corporeum::Compression;
 pub use corporeum::Corporeum;
 
 mod author;
