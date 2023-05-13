@@ -4,7 +4,7 @@ use lzma_rs::{xz_compress, xz_decompress};
 use std::{
     fs,
     io::{BufReader, Cursor, Read, Result as IoResult, Write},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -75,7 +75,7 @@ impl Corporeum<'_> {
             serde_cbor::ser::to_vec(&self.corpus).unwrap()
         };
 
-        let destination = destination.as_ref().with_extension("cbor");
+        let destination = Self::generate_save_path(destination.as_ref(), compression);
         let mut file = fs::OpenOptions::new()
             .write(true)
             .truncate(true)
@@ -94,6 +94,24 @@ impl Corporeum<'_> {
                 Ok(())
             }
         }
+    }
+
+    fn generate_save_path(path: &Path, compression: Compression) -> PathBuf {
+        let raw_name = path
+            .file_stem()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .split('.')
+            .next()
+            .unwrap();
+        let mut path = path.with_file_name(raw_name).display().to_string();
+
+        path.push_str(".corp");
+        if compression != Compression::None {
+            path.push_str(&format!(".{}", compression.as_str()));
+        }
+        path.into()
     }
 
     pub const fn corpus(&self) -> &Corpus {
@@ -120,6 +138,16 @@ impl TryFrom<&Path> for Compression {
             "lz" | "xz" | "lzma" => Ok(Self::Lzma),
             "corp" | "cbor" => Ok(Self::None),
             _ => Err(()),
+        }
+    }
+}
+
+impl Compression {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::None => "",
+            Self::Deflate => "gz",
+            Self::Lzma => "xz",
         }
     }
 }
