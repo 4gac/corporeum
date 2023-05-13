@@ -55,15 +55,15 @@ impl Corporeum<'_> {
         })
     }
 
-    pub fn save_cbor(&self, packed: bool) -> IoResult<()> {
-        self.save_as_cbor(
+    pub fn save(&self, packed: bool) -> IoResult<()> {
+        self.save_as(
             &self.original_file_path,
             packed,
             self.original_file_path.try_into().unwrap(),
         )
     }
 
-    pub fn save_as_cbor<P: AsRef<Path>>(
+    pub fn save_as<P: AsRef<Path>>(
         &self,
         destination: &P,
         packed: bool,
