@@ -1,4 +1,5 @@
 use crate::schema::Corpus;
+use brotli::{CompressorWriter, Decompressor};
 use flate2::{read::GzDecoder, write::GzEncoder, Compression as FlateCompression};
 use lzma_rs::{xz_compress, xz_decompress};
 use std::{
@@ -12,6 +13,7 @@ pub enum Compression {
     None,
     Lzma,
     Deflate,
+    Brotli,
 }
 
 pub struct Corporeum<'a> {
@@ -45,6 +47,10 @@ impl Corporeum<'_> {
             Compression::Lzma => {
                 let mut reader = BufReader::new(file);
                 xz_decompress(&mut reader, &mut data).unwrap();
+            }
+            Compression::Brotli => {
+                let mut decompressor = Decompressor::new(file, 4096);
+                decompressor.read_to_end(&mut data)?;
             }
         }
 
@@ -93,6 +99,10 @@ impl Corporeum<'_> {
                 xz_compress(&mut cursor, &mut file).unwrap();
                 Ok(())
             }
+            Compression::Brotli => {
+                let mut compressor = CompressorWriter::new(file, 4096, 11, 22);
+                compressor.write_all(&buffer)
+            }
         }
     }
 
@@ -137,6 +147,7 @@ impl TryFrom<&Path> for Compression {
             "gz" | "zip" => Ok(Self::Deflate),
             "lz" | "xz" | "lzma" => Ok(Self::Lzma),
             "corp" | "cbor" => Ok(Self::None),
+            "brotli" => Ok(Self::Brotli),
             _ => Err(()),
         }
     }
@@ -148,6 +159,7 @@ impl Compression {
             Self::None => "",
             Self::Deflate => "gz",
             Self::Lzma => "xz",
+            Self::Brotli => "brotli",
         }
     }
 }
