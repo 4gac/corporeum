@@ -1,3 +1,4 @@
+use crate::error::CorporeumError;
 use crate::schema::Corpus;
 
 use ciborium::from_reader;
@@ -24,38 +25,38 @@ impl Corporeum<'_> {
     }
 
     // function to load an already existing corpus
-    pub fn load<P: AsRef<Path> + std::io::Read>(source: &P) -> Corporeum {
+    pub fn load<P: AsRef<Path> + std::io::Read>(source: &P) -> Result<Corporeum, CorporeumError> {
         let mut _data: Vec<u8> = Vec::new();
         if source.as_ref().is_file() {
-            _data = fs::read(source).expect("Unable to read file");
+            _data = fs::read(source)?;
         } else {
             panic!("Not a file");
         }
 
         let corpus: Corpus = match source.as_ref().extension().and_then(OsStr::to_str).unwrap() {
-            EXTENSION => from_reader(_data.as_slice()).unwrap(),
-            _ => panic!("Unsupported file format"),
+            EXTENSION => from_reader(_data.as_slice())?,
+            _ => return Err(CorporeumError::UnsupportedFileExtension),
         };
-        Corporeum {
+        Ok(Corporeum {
             original_file_path: source.as_ref(),
             corpus,
-        }
+        })
     }
 
-    pub fn save<P: AsRef<Path>>(&self) {
+    pub fn save<P: AsRef<Path>>(&self) -> Result<(), CorporeumError> {
         let dest = Path::with_extension(self.original_file_path, EXTENSION);
         let dest = dest.as_path();
         let file = fs::OpenOptions::new()
             .write(true)
             .truncate(true)
             .create(true)
-            .open(dest)
-            .unwrap();
+            .open(dest)?;
 
-        into_writer(&self.corpus, file).unwrap();
+        into_writer(&self.corpus, file)?;
+        Ok(())
     }
 
-    pub fn save_as<P: AsRef<Path>>(&self, destination: &P) {
+    pub fn save_as<P: AsRef<Path>>(&self, destination: &P) -> Result<(), CorporeumError> {
         let destination = destination.as_ref();
 
         if destination.is_file() {
@@ -65,11 +66,11 @@ impl Corporeum<'_> {
                 .write(true)
                 .truncate(true)
                 .create(true)
-                .open(dest)
-                .unwrap();
+                .open(dest)?;
 
-            into_writer(&self.corpus, file).unwrap();
+            into_writer(&self.corpus, file)?;
         }
+        Ok(())
     }
 
     pub fn corpus(&self) -> &Corpus {
