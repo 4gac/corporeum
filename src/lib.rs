@@ -9,4 +9,3 @@ mod metadata;
 mod schema;
 mod sentence;
 mod token;
-mod translation;

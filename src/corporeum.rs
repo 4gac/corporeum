@@ -25,7 +25,7 @@ impl Corporeum<'_> {
     }
 
     // function to load an already existing corpus
-    pub fn load<P: AsRef<Path> + std::io::Read>(source: &P) -> Result<Corporeum, CorporeumError> {
+    pub fn load<P: AsRef<Path>>(source: &P) -> Result<Corporeum, CorporeumError> {
         let mut _data: Vec<u8> = Vec::new();
         if source.as_ref().is_file() {
             _data = fs::read(source)?;
@@ -43,7 +43,7 @@ impl Corporeum<'_> {
         })
     }
 
-    pub fn save<P: AsRef<Path>>(&self) -> Result<(), CorporeumError> {
+    pub fn save(&self) -> Result<(), CorporeumError> {
         let dest = Path::with_extension(self.original_file_path, EXTENSION);
         let dest = dest.as_path();
         let file = fs::OpenOptions::new()

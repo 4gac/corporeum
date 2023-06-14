@@ -1,7 +1,5 @@
 use serde::Deserialize;
 use serde::Serialize;
-// use serde_derive::Deserialize;
-// use serde_derive::Serialize;
 
 #[derive(Deserialize, Serialize, Debug, Default)]
 #[serde(rename = "corpus")]
@@ -42,22 +40,26 @@ pub struct Document {
     pub(crate) description: Option<String>,
     pub(crate) id: u32,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
-    pub(crate) sentences: Vec<Sentence>,
+    pub(crate) sentences: Vec<Sentence<Source>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) source: Option<String>,
-    // #[serde(skip_serializing)]
-    // pub(crate) last_sentence_id: u32, // cache next id
 }
 
+#[derive(Debug)]
+pub struct Source;
+#[derive(Debug)]
+pub struct Target;
+
 #[derive(Deserialize, Serialize, Debug)]
-pub struct Sentence {
+pub struct Sentence<Type> {
+    pub(crate) _t: std::marker::PhantomData<Type>,
     pub(crate) id: u32,
     // TODO enum - could be either 'source' or 'target'
     pub(crate) lang: String, // TODO features, labels
     // pub(crate) sentence_type: SentenceType, // language identifier
     pub(crate) tokens: Vec<Token>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
-    pub(crate) translations: Vec<Sentence>,
+    pub(crate) translations: Vec<Sentence<Target>>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -80,26 +82,4 @@ pub struct Token {
     pub(crate) deps: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) misc: Option<String>, // this is here only for compatibilty reasons with CoNLL-U
-}
-
-// #[derive(Deserialize, Serialize, Debug)]
-// pub struct Translations {
-//     #[serde(rename = "translation")]
-//     pub(crate) translations: Vec<Translation>,
-// }
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Translation {
-    pub(crate) id: u32,
-    pub(crate) lang: String,
-    pub(crate) sentence_type: SentenceType,
-    pub(crate) tokens: Vec<Token>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub enum SentenceType {
-    #[serde(rename = "source")]
-    Source,
-    #[serde(rename = "translation")]
-    Translation,
 }
