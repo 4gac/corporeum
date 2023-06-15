@@ -12,6 +12,7 @@ pub enum CorporeumError {
     UnsupportedFileExtension,
     DecompressionError(std::io::Error),
     CompressionError(std::io::Error),
+    IncorrectPath(String),
 }
 
 impl fmt::Display for CorporeumError {
@@ -51,6 +52,10 @@ impl fmt::Display for CorporeumError {
             Self::UnsupportedFileExtension => write!(f, "Unsupported file extension"),
             Self::DecompressionError(err) => write!(f, "Decompression failed: {err}"),
             Self::CompressionError(err) => write!(f, "Compression failed: {err}"),
+            Self::IncorrectPath(path) => write!(
+                f,
+                "Cannot create file {path}. Input should be a file, not a directory"
+            ),
         }
     }
 }
