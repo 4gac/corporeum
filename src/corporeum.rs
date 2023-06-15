@@ -26,12 +26,7 @@ impl Corporeum<'_> {
 
     // function to load an already existing corpus
     pub fn load<P: AsRef<Path>>(source: &P) -> Result<Corporeum, CorporeumError> {
-        let mut data: Vec<u8> = Vec::new();
-        if source.as_ref().is_file() {
-            data = fs::read(source)?;
-        } else {
-            panic!("Not a file");
-        }
+        let data = fs::read(source)?;
 
         let corpus: Corpus = match source.as_ref().extension().and_then(OsStr::to_str).unwrap() {
             EXTENSION => from_reader(data.as_slice())?,
