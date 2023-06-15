@@ -2,8 +2,8 @@ use crate::schema::Author;
 use crate::schema::Metadata;
 
 impl Metadata {
-    pub(crate) fn new(name: &str) -> Metadata {
-        Metadata {
+    pub(crate) fn new(name: &str) -> Self {
+        Self {
             authors: Vec::new(),
             created: None,
             description: None,
@@ -21,7 +21,7 @@ impl Metadata {
         self.name = name.to_string();
     }
 
-    pub fn authors(&self) -> &Vec<Author> {
+    pub const fn authors(&self) -> &Vec<Author> {
         &self.authors
     }
 
@@ -40,10 +40,10 @@ impl Metadata {
     }
 
     pub fn set_description(&mut self, desc: &str) {
-        self.description = Some(desc.to_owned())
+        self.description = Some(desc.to_owned());
     }
 
-    pub fn version(&self) -> u16 {
+    pub const fn version(&self) -> u16 {
         self.version
     }
 

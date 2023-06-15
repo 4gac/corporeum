@@ -2,7 +2,7 @@ use crate::schema::{Corpus, Document, Metadata};
 
 impl Corpus {
     // returns imutable reference to Metadata
-    pub fn metadata(&self) -> Option<&Metadata> {
+    pub const fn metadata(&self) -> Option<&Metadata> {
         self.metadata.as_ref()
     }
 
@@ -18,7 +18,7 @@ impl Corpus {
     }
 
     // returns a list of documents in the corpus
-    pub fn docs(&self) -> &Vec<Document> {
+    pub const fn docs(&self) -> &Vec<Document> {
         &self.documents
     }
 
