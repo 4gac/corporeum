@@ -5,7 +5,7 @@ use crate::schema::Token;
 use std::marker::PhantomData;
 
 impl Sentence<Source> {
-    pub fn new(id: u32, lang: &str) -> Self {
+    pub(crate) fn new(id: u32, lang: &str) -> Self {
         Self {
             t: PhantomData::default(),
             id,
@@ -31,7 +31,7 @@ impl Sentence<Source> {
 }
 
 impl Sentence<Target> {
-    pub fn new(id: u32, lang: &str) -> Self {
+    pub(crate) fn new(id: u32, lang: &str) -> Self {
         Self {
             t: PhantomData::default(),
             id,

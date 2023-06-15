@@ -1,7 +1,7 @@
 use crate::schema::{Document, Sentence, Source};
 
 impl Document {
-    pub const fn new(id: u32) -> Self {
+    pub(crate) const fn new(id: u32) -> Self {
         Self {
             id,
             source: None,

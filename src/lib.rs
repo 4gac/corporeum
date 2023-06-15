@@ -8,10 +8,10 @@
 use std::{ffi::OsStr, fs, io::Read, path::Path};
 
 use ciborium::from_reader;
-use corporeum::Corporeum;
-use error::CorporeumError;
+pub use corporeum::Corporeum;
+pub use error::CorporeumError;
 use flate2::bufread::ZlibDecoder;
-use schema::Corpus;
+pub use schema::{Author, Corpus, Document, Metadata, Sentence, Source};
 
 mod author;
 mod corporeum;
@@ -23,7 +23,8 @@ mod schema;
 mod sentence;
 mod token;
 
-const EXTENSION: &str = "ucf"; // Unified Corpora Format
+/// Unified Corpora Format
+const EXTENSION: &str = "ucf";
 
 /// return corporeum with an empty corpora from a given path
 #[inline]
