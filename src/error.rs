@@ -2,7 +2,7 @@ use core::fmt;
 
 #[derive(Debug)]
 pub enum CorporeumError {
-    FailedToLoadFile(std::io::Error),
+    IOFailed(std::io::Error),
     FailedToParseIO(std::io::Error),
     FailedToParseRecursionLimitExceeded,
     FailedToParseSemantic(Option<usize>, String),
@@ -17,7 +17,7 @@ pub enum CorporeumError {
 impl fmt::Display for CorporeumError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::FailedToLoadFile(err) => write!(f, "Failed to open file: {err}"),
+            Self::IOFailed(err) => write!(f, "Failed to open file: {err}"),
             Self::FailedToParseIO(err) => {
                 write!(
                     f,
@@ -83,6 +83,6 @@ impl From<ciborium::ser::Error<std::io::Error>> for CorporeumError {
 
 impl From<std::io::Error> for CorporeumError {
     fn from(err: std::io::Error) -> Self {
-        Self::FailedToLoadFile(err)
+        Self::IOFailed(err)
     }
 }
