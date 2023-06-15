@@ -62,7 +62,7 @@ impl Document {
     /// Fetch a sentence by its `id` and return a reference to it if exists.
     ///
     //// # Example
-    /// ```
+    /// ```no_run
     /// use corporum::new;
     ///
     /// let mut corp = new("...").unwrap();
@@ -77,9 +77,11 @@ impl Document {
     /// Fetch a sentence by its `id` and return a reference to it if exists.
     ///
     //// # Example
-    /// ```
-    /// # use corporum::Document;
-    /// let doc = Document::new();
+    /// ```no_run
+    /// use corporum::new;
+    ///
+    /// let mut corp = new("...").unwrap();
+    /// let mut doc = corp.corpus_mut().create_doc();
     ///
     /// assert!(doc.sentence_by_id_mut(0).is_none());
     /// ```
