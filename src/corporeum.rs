@@ -21,6 +21,23 @@ pub struct Corporeum {
 }
 
 impl Corporeum {
+    /// Save the corpus to its original location.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use corporum::new;
+    /// #
+    /// let corp = new("some_file.ucf").unwrap();
+    /// // ... do some work ...
+    ///
+    /// // This will save the corpus into ./some_file.ucf
+    /// if let Err(e) = corp.save() {
+    ///     eprintln!("Failed to save: {e}");
+    /// }
+    /// ```
+    ///
+    /// To save the corpus under a different file name, you may want to
+    /// use [`save_as()`](Self::save_as) instead.
     #[inline]
     pub fn save(&self) -> Result<(), CorporeumError> {
         let dest = Path::with_extension(self.original_file_path.as_path(), EXTENSION);
@@ -43,6 +60,21 @@ impl Corporeum {
         Ok(())
     }
 
+    /// Save the corpus to the specified file.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use corporum::new;
+    /// let corp = new("some_file.ucf").unwrap();
+    /// // ... do some work ...
+    ///
+    /// if let Err(e) = corp.save_as("my_corpus.ucf") {
+    ///     eprintln!("Failed to save: {e}");
+    /// }
+    /// ```
+    ///
+    /// To save the corpus to it's original file, you may want to
+    /// use [`save()`](Self::save) instead.
     #[inline]
     pub fn save_as<P: AsRef<Path>>(&self, destination: P) -> Result<(), CorporeumError> {
         let dest = Path::with_extension(destination.as_ref(), EXTENSION);
@@ -66,10 +98,12 @@ impl Corporeum {
         Ok(())
     }
 
+    /// Return a reference to the internal `Corpus`.
     pub const fn corpus(&self) -> &Corpus {
         &self.corpus
     }
 
+    /// Return a mutable reference to the internal `Corpus`.
     pub fn corpus_mut(&mut self) -> &mut Corpus {
         &mut self.corpus
     }
