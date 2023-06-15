@@ -7,3 +7,4 @@ authors = ["Fero Forgac <fero4gac@protonmail.com>"]
 [dependencies]
 serde = { version = "1.0.152", features = ["derive"] }
 ciborium = "0.2.1"
+flate2 = "1.0.26"

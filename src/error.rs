@@ -10,6 +10,8 @@ pub enum CorporeumError {
     FailedToSaveFileIO(std::io::Error),
     FailedToSaveFileValue(String),
     UnsupportedFileExtension,
+    DecompressionError(std::io::Error),
+    CompressionError(std::io::Error),
 }
 
 impl fmt::Display for CorporeumError {
@@ -47,6 +49,8 @@ impl fmt::Display for CorporeumError {
                 write!(f, "Failed to save file. Value cannot be serialzed: {desc}")
             }
             Self::UnsupportedFileExtension => write!(f, "Unsupported file extension"),
+            Self::DecompressionError(err) => write!(f, "Decompression failed: {err}"),
+            Self::CompressionError(err) => write!(f, "Compression failed: {err}"),
         }
     }
 }

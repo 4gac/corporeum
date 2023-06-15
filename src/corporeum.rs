@@ -3,7 +3,13 @@ use crate::schema::Corpus;
 
 use ciborium::from_reader;
 use ciborium::into_writer;
+use flate2::read::ZlibDecoder;
+use flate2::write::ZlibEncoder;
+use flate2::Compression;
 
+use std::io::Cursor;
+use std::io::Read;
+use std::io::Write;
 use std::{ffi::OsStr, fs, path::Path};
 
 const EXTENSION: &str = "ucf"; // Unified Corpora Format
@@ -26,10 +32,16 @@ impl Corporeum<'_> {
 
     // function to load an already existing corpus
     pub fn load<P: AsRef<Path>>(source: &P) -> Result<Corporeum, CorporeumError> {
-        let data = fs::read(source)?;
+        let input_data = fs::read(source)?;
+        let mut decompresed = Vec::new();
+        let mut decompressor = ZlibDecoder::new(&input_data[..]);
+
+        decompressor
+            .read_to_end(&mut decompresed)
+            .map_err(CorporeumError::DecompressionError)?;
 
         let corpus: Corpus = match source.as_ref().extension().and_then(OsStr::to_str).unwrap() {
-            EXTENSION => from_reader(data.as_slice())?,
+            EXTENSION => from_reader(decompresed.as_slice())?,
             _ => return Err(CorporeumError::UnsupportedFileExtension),
         };
         Ok(Corporeum {
@@ -41,13 +53,21 @@ impl Corporeum<'_> {
     pub fn save(&self) -> Result<(), CorporeumError> {
         let dest = Path::with_extension(self.original_file_path, EXTENSION);
         let dest = dest.as_path();
+        let mut data = Vec::new();
+
+        into_writer(&self.corpus, Cursor::new(&mut data))?;
+
         let file = fs::OpenOptions::new()
             .write(true)
             .truncate(true)
             .create(true)
             .open(dest)?;
+        let mut compressor = ZlibEncoder::new(file, Compression::best());
 
-        into_writer(&self.corpus, file)?;
+        compressor
+            .write_all(&data)
+            .map_err(CorporeumError::CompressionError)?;
+
         Ok(())
     }
 
