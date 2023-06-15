@@ -73,18 +73,24 @@ impl Corporeum<'_> {
 
     pub fn save_as<P: AsRef<Path>>(&self, destination: &P) -> Result<(), CorporeumError> {
         let destination = destination.as_ref();
+        let dest = Path::with_extension(destination, EXTENSION);
+        let dest = dest.as_path();
 
-        if destination.is_file() {
-            let dest = Path::with_extension(destination, EXTENSION);
-            let dest = dest.as_path();
-            let file = fs::OpenOptions::new()
-                .write(true)
-                .truncate(true)
-                .create(true)
-                .open(dest)?;
+        let mut data = Vec::new();
 
-            into_writer(&self.corpus, file)?;
-        }
+        into_writer(&self.corpus, Cursor::new(&mut data))?;
+
+        let file = fs::OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .create(true)
+            .open(dest)?;
+        let mut compressor = ZlibEncoder::new(file, Compression::best());
+
+        compressor
+            .write_all(&data)
+            .map_err(CorporeumError::CompressionError)?;
+
         Ok(())
     }
 
