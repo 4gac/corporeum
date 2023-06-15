@@ -29,10 +29,7 @@ impl Document {
     /// doc.create_sentence("en");
     /// ```
     pub fn create_sentence(&mut self, lang: &str) -> Sentence<Source> {
-        if self.sentences.is_empty() {
-            return Sentence::<Source>::new(0, lang);
-        }
-        Sentence::<Source>::new(self.sentences.last().unwrap().id + 1, lang)
+        Sentence::<Source>::new(self.sentences.last().map_or(0, |s| s.id + 1), lang)
     }
 
     /// Add a [`Sentence`](crate::Sentence) to the document.

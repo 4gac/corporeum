@@ -20,10 +20,7 @@ impl Sentence<Source> {
     /// To add this translation to a [`Sentence<Source>`](Self), use
     /// [`add_translation()`](Self::add_translation).
     pub fn create_translation(&self, lang: &str) -> Sentence<Target> {
-        if self.translations.is_empty() {
-            return Sentence::<Target>::new(0, lang);
-        }
-        Sentence::<Target>::new(self.translations.last().unwrap().id + 1, lang)
+        Sentence::<Target>::new(self.translations.last().map_or(0, |t| t.id + 1), lang)
     }
 
     /// Add a translation.
@@ -54,10 +51,7 @@ impl<T> Sentence<T> {
     ///
     /// To add this token to this Sentence, use [`add_token`](Self::add_token).
     pub fn create_token(&self, form: &str) -> Token {
-        if self.tokens.is_empty() {
-            return Token::new(0, form);
-        }
-        Token::new(self.tokens.last().unwrap().id + 1, form)
+        Token::new(self.tokens.last().map_or(0, |t| t.id + 1), form)
     }
 
     /// Add a token to this sentence.

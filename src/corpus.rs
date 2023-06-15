@@ -43,10 +43,7 @@ impl Corpus {
     ///
     /// This new document can then be added to this corpus using [`add_doc`](Self::add_doc).
     pub fn create_doc(&mut self) -> Document {
-        if self.documents.is_empty() {
-            return Document::new(0);
-        }
-        Document::new(self.documents.last().unwrap().id + 1)
+        Document::new(self.documents.last().map_or(0, |doc| doc.id + 1))
     }
 
     /// Adds the specified document to the corpus.
