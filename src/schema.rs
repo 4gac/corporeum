@@ -2,6 +2,12 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::marker::PhantomData;
 
+/// Represents a text corpus.
+///
+/// This structure __cannot__ be created by the user!
+/// To create it, you must create a [`Corporeum`](crate::corporeum::Corporeum)
+/// first (using either [`new()`](crate::new) or [`load()`](crate::load)).
+/// Then call [`corpus()`](crate::corporeum::Corporeum::corpus) (or [`corpus_mut()`](crate::corporeum::Corporeum::corpus_mut)).
 #[derive(Deserialize, Serialize, Debug, Default)]
 #[serde(rename = "corpus")]
 pub struct Corpus {
@@ -11,6 +17,10 @@ pub struct Corpus {
     pub(crate) documents: Vec<Document>,
 }
 
+/// Represents the metadata contents in a text corpus.
+///
+/// This structure __cannot__ be created by the user, to add
+/// metadata to a [`Corpus`](Corpus), use [`add_metadata()`](Corpus::add_metadata) instead.
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Metadata {
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
@@ -27,6 +37,10 @@ pub struct Metadata {
     pub(crate) version: u16,
 }
 
+/// Represents an author of `Metadata`.
+///
+/// This structure __cannot__ be created by the user, to add an `Author`
+/// to [`Metadata`](Metadata), use [`add_author()`](Metadata::add_author) instead.
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Author {
     pub(crate) first_name: String,
@@ -34,7 +48,10 @@ pub struct Author {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) mail: Option<String>,
 }
-
+/// Represents a document.
+///
+/// This structure __cannot__ be created by the user, to add a `Document`
+/// to a [`Corpus`](Corpus), use [`add_doc()`](Corpus::add_doc) instead.
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Document {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -51,6 +68,11 @@ pub struct Source;
 #[derive(Debug)]
 pub struct Target;
 
+/// Represents a sentence.
+///
+/// This structure __cannot__ be created by the user, to add a `Sentence`
+/// to a [`Document`](Document), use [`create_sentence()`](Document::create_sentence) and
+/// [`add_sentence()`](Document::add_sentence) instead.
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Sentence<Type> {
     pub(crate) t: PhantomData<Type>,
@@ -63,6 +85,11 @@ pub struct Sentence<Type> {
     pub(crate) translations: Vec<Sentence<Target>>,
 }
 
+/// Represents a token.
+///
+/// This structure __cannot__ be created by the user, to add a `Token`
+/// to a [`Sentence`](Sentence), use [`create_token()`](Sentence::create_token) and
+/// [`add_token()`](Sentence::add_token) instead.
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Token {
     pub(crate) id: u32,

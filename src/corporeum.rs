@@ -14,6 +14,7 @@ use std::{fs, path::Path};
 
 // const EXTENSION: &str = "ucf"; // Unified Corpora Format
 
+/// Holds a [`Corpus`](crate::Corpus) created from a file.
 pub struct Corporeum {
     pub(crate) original_file_path: PathBuf,
     pub(crate) corpus: Corpus,

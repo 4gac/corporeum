@@ -4,14 +4,15 @@
     clippy::missing_errors_doc,
     clippy::module_name_repetitions
 )]
-
-use std::{ffi::OsStr, fs, io::Read, path::Path};
-
+//
+//! A library for working with text corpora.
+//
 use ciborium::from_reader;
 pub use corporeum::Corporeum;
 pub use error::CorporeumError;
 use flate2::bufread::ZlibDecoder;
-pub use schema::{Author, Corpus, Document, Metadata, Sentence, Source};
+pub use schema::{Author, Corpus, Document, Metadata, Sentence, Token};
+use std::{ffi::OsStr, fs, io::Read, path::Path};
 
 mod author;
 mod corporeum;
@@ -26,7 +27,19 @@ mod token;
 /// Unified Corpora Format
 const EXTENSION: &str = "ucf";
 
-/// return corporeum with an empty corpora from a given path
+/// Creates a new `Corporeum` with an empty corpora from a given path.
+///
+/// # Example
+/// ```
+/// # use corporum::new;
+/// let corp = new("some_file.ucf");
+/// ```
+///
+/// # Erros
+/// If the given file does not exist or is inaccessible, an error is returned.
+///
+/// To load a `Corpus` from a `.ucf` file, you may want to
+/// use [`load()`](load) instead.
 #[inline]
 pub fn new<P: AsRef<Path>>(buffer: P) -> Result<Corporeum, CorporeumError> {
     let corpus = Corpus::default();
@@ -44,7 +57,26 @@ pub fn new<P: AsRef<Path>>(buffer: P) -> Result<Corporeum, CorporeumError> {
     })
 }
 
-/// function to load an already existing corpus
+/// Load an already existing corpus from a `.ucf` file.
+///
+/// # Example
+/// ```no_run
+/// # use corporum::load;
+/// let corp = match load("some_file.ucf") {
+///     Ok(corp) => corp,
+///     Err(e) => panic!("Error loading corpus: {e}"),
+/// };
+///
+/// // ...
+/// ```
+///
+/// # Errors
+/// This will return an error if:
+/// - The given file does not exist or is inaccessible.
+/// - The contents could not be decompressed.
+/// - The file extension is incorrect (only `.ucf` is supported)
+/// - The contents could not be deserialized.
+///
 #[inline]
 pub fn load<P: AsRef<Path>>(source: P) -> Result<Corporeum, CorporeumError> {
     let input_data = fs::read(&source)?;
