@@ -15,44 +15,38 @@ pub enum CorporeumError {
 impl fmt::Display for CorporeumError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            CorporeumError::FailedToLoadFile(err) => write!(f, "Failed to open file: {}", err),
-            CorporeumError::FailedToParseIO(err) => {
+            Self::FailedToLoadFile(err) => write!(f, "Failed to open file: {err}"),
+            Self::FailedToParseIO(err) => {
                 write!(
                     f,
-                    "Failed to parse corporeum file while reading bytes: {}",
-                    err
+                    "Failed to parse corporeum file while reading bytes: {err}"
                 )
             }
-            CorporeumError::FailedToParseSyntax(offset) => {
+            Self::FailedToParseSyntax(offset) => {
                 write!(
                     f,
-                    "Failed to parse corporeum file while parsing bytes at offset: {}",
-                    offset
+                    "Failed to parse corporeum file while parsing bytes at offset: {offset}"
                 )
             }
-            CorporeumError::FailedToParseSemantic(opt, s) => {
+            Self::FailedToParseSemantic(opt, s) => {
                 write!(
                     f,
-                    "Failed to parse corporeum file while processing parsed value: {}, {}",
+                    "Failed to parse corporeum file while processing parsed value: {}, {s}",
                     opt.unwrap_or_default(),
-                    s
                 )
             }
-            CorporeumError::FailedToParseRecursionLimitExceeded => write!(
+            Self::FailedToParseRecursionLimitExceeded => write!(
                 f,
                 "Failed to parse corporeum file due to exceeding the recursion limit"
             ),
-            CorporeumError::FailedToSaveFileIO(err) => write!(
+            Self::FailedToSaveFileIO(err) => write!(
                 f,
-                "Failed to save file. An error occured while writing bytes: {}",
-                err
+                "Failed to save file. An error occured while writing bytes: {err}"
             ),
-            CorporeumError::FailedToSaveFileValue(desc) => write!(
-                f,
-                "Failed to save file. Value cannot be serialzed: {}",
-                desc
-            ),
-            CorporeumError::UnsupportedFileExtension => write!(f, "Unsupported file extension"),
+            Self::FailedToSaveFileValue(desc) => {
+                write!(f, "Failed to save file. Value cannot be serialzed: {desc}")
+            }
+            Self::UnsupportedFileExtension => write!(f, "Unsupported file extension"),
         }
     }
 }
@@ -62,13 +56,13 @@ impl std::error::Error for CorporeumError {}
 impl From<ciborium::de::Error<std::io::Error>> for CorporeumError {
     fn from(err: ciborium::de::Error<std::io::Error>) -> Self {
         match err {
-            ciborium::de::Error::Io(err) => CorporeumError::FailedToParseIO(err),
-            ciborium::de::Error::Syntax(offset) => CorporeumError::FailedToParseSyntax(offset),
+            ciborium::de::Error::Io(err) => Self::FailedToParseIO(err),
+            ciborium::de::Error::Syntax(offset) => Self::FailedToParseSyntax(offset),
             ciborium::de::Error::Semantic(offset, desc) => {
-                CorporeumError::FailedToParseSemantic(offset, desc)
+                Self::FailedToParseSemantic(offset, desc)
             }
             ciborium::de::Error::RecursionLimitExceeded => {
-                CorporeumError::FailedToParseRecursionLimitExceeded
+                Self::FailedToParseRecursionLimitExceeded
             }
         }
     }
@@ -77,14 +71,14 @@ impl From<ciborium::de::Error<std::io::Error>> for CorporeumError {
 impl From<ciborium::ser::Error<std::io::Error>> for CorporeumError {
     fn from(err: ciborium::ser::Error<std::io::Error>) -> Self {
         match err {
-            ciborium::ser::Error::Io(err) => CorporeumError::FailedToSaveFileIO(err),
-            ciborium::ser::Error::Value(desc) => CorporeumError::FailedToSaveFileValue(desc),
+            ciborium::ser::Error::Io(err) => Self::FailedToSaveFileIO(err),
+            ciborium::ser::Error::Value(desc) => Self::FailedToSaveFileValue(desc),
         }
     }
 }
 
 impl From<std::io::Error> for CorporeumError {
     fn from(err: std::io::Error) -> Self {
-        CorporeumError::FailedToLoadFile(err)
+        Self::FailedToLoadFile(err)
     }
 }

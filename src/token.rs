@@ -1,8 +1,8 @@
 use crate::schema::Token;
 
 impl Token {
-    pub fn new(id: u32, token: &str) -> Token {
-        Token {
+    pub fn new(id: u32, token: &str) -> Self {
+        Self {
             id,
             form: token.to_string(),
             lemma: None,
@@ -25,7 +25,7 @@ impl Token {
     }
 
     pub fn lemma(&self) -> Option<&str> {
-        self.lemma.as_ref().map(|x| x.as_str())
+        self.lemma.as_deref()
     }
 
     pub fn set_lemma(&mut self, lemma: &str) {
@@ -37,7 +37,7 @@ impl Token {
     }
 
     pub fn upos(&self) -> Option<&str> {
-        self.upos.as_ref().map(|x| x.as_str())
+        self.upos.as_deref()
     }
 
     pub fn set_upos(&mut self, upos: &str) {
@@ -48,7 +48,7 @@ impl Token {
         self.upos = None;
     }
     pub fn xpos(&self) -> Option<&str> {
-        self.xpos.as_ref().map(|x| x.as_str())
+        self.xpos.as_deref()
     }
 
     pub fn set_xpos(&mut self, xpos: &str) {
@@ -60,7 +60,7 @@ impl Token {
     }
 
     pub fn feats(&self) -> Option<&str> {
-        self.feats.as_ref().map(|x| x.as_str())
+        self.feats.as_deref()
     }
 
     pub fn set_feats(&mut self, feats: &str) {
@@ -72,7 +72,7 @@ impl Token {
     }
 
     pub fn head(&self) -> Option<&str> {
-        self.head.as_ref().map(|x| x.as_str())
+        self.head.as_deref()
     }
 
     pub fn set_head(&mut self, head: &str) {
@@ -84,7 +84,7 @@ impl Token {
     }
 
     pub fn deprel(&self) -> Option<&str> {
-        self.deprel.as_ref().map(|x| x.as_str())
+        self.deprel.as_deref()
     }
 
     pub fn set_deprel(&mut self, deprel: &str) {
@@ -96,7 +96,7 @@ impl Token {
     }
 
     pub fn deps(&self) -> Option<&str> {
-        self.deps.as_ref().map(|x| x.as_str())
+        self.deps.as_deref()
     }
 
     pub fn set_deps(&mut self, deps: &str) {
@@ -108,7 +108,7 @@ impl Token {
     }
 
     pub fn misc(&self) -> Option<&str> {
-        self.misc.as_ref().map(|x| x.as_str())
+        self.misc.as_deref()
     }
 
     pub fn set_misc(&mut self, misc: &str) {

@@ -26,15 +26,15 @@ impl Corporeum<'_> {
 
     // function to load an already existing corpus
     pub fn load<P: AsRef<Path>>(source: &P) -> Result<Corporeum, CorporeumError> {
-        let mut _data: Vec<u8> = Vec::new();
+        let mut data: Vec<u8> = Vec::new();
         if source.as_ref().is_file() {
-            _data = fs::read(source)?;
+            data = fs::read(source)?;
         } else {
             panic!("Not a file");
         }
 
         let corpus: Corpus = match source.as_ref().extension().and_then(OsStr::to_str).unwrap() {
-            EXTENSION => from_reader(_data.as_slice())?,
+            EXTENSION => from_reader(data.as_slice())?,
             _ => return Err(CorporeumError::UnsupportedFileExtension),
         };
         Ok(Corporeum {
@@ -73,7 +73,7 @@ impl Corporeum<'_> {
         Ok(())
     }
 
-    pub fn corpus(&self) -> &Corpus {
+    pub const fn corpus(&self) -> &Corpus {
         &self.corpus
     }
 

@@ -4,8 +4,8 @@ use crate::schema::Target;
 use crate::schema::Token;
 
 impl Sentence<Source> {
-    pub fn new(id: u32, lang: &str) -> Sentence<Source> {
-        Sentence {
+    pub fn new(id: u32, lang: &str) -> Self {
+        Self {
             _t: std::marker::PhantomData::<Source>,
             id,
             lang: lang.to_string(),
@@ -30,8 +30,8 @@ impl Sentence<Source> {
 }
 
 impl Sentence<Target> {
-    pub fn new(id: u32, lang: &str) -> Sentence<Target> {
-        Sentence {
+    pub fn new(id: u32, lang: &str) -> Self {
+        Self {
             _t: std::marker::PhantomData::<Target>,
             id,
             lang: lang.to_string(),
@@ -56,7 +56,7 @@ impl<T> Sentence<T> {
         self.tokens.push(token);
     }
 
-    pub fn sentence_id(&self) -> u32 {
+    pub const fn sentence_id(&self) -> u32 {
         self.id
     }
 }

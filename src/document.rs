@@ -1,8 +1,8 @@
 use crate::schema::{Document, Sentence, Source};
 
 impl Document {
-    pub fn new(id: u32) -> Document {
-        Document {
+    pub const fn new(id: u32) -> Self {
+        Self {
             id,
             source: None,
             description: None,
@@ -10,7 +10,7 @@ impl Document {
         }
     }
 
-    pub fn doc_id(&self) -> u32 {
+    pub const fn doc_id(&self) -> u32 {
         self.id
     }
 
