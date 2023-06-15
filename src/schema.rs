@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use serde::Serialize;
+use std::marker::PhantomData;
 
 #[derive(Deserialize, Serialize, Debug, Default)]
 #[serde(rename = "corpus")]
@@ -52,7 +53,7 @@ pub struct Target;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Sentence<Type> {
-    pub(crate) _t: std::marker::PhantomData<Type>,
+    pub(crate) t: PhantomData<Type>,
     pub(crate) id: u32,
     // TODO enum - could be either 'source' or 'target'
     pub(crate) lang: String, // TODO features, labels

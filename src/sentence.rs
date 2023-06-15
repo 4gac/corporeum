@@ -2,11 +2,12 @@ use crate::schema::Sentence;
 use crate::schema::Source;
 use crate::schema::Target;
 use crate::schema::Token;
+use std::marker::PhantomData;
 
 impl Sentence<Source> {
     pub fn new(id: u32, lang: &str) -> Self {
         Self {
-            _t: std::marker::PhantomData::<Source>,
+            t: PhantomData::default(),
             id,
             lang: lang.to_string(),
             tokens: Vec::new(),
@@ -32,7 +33,7 @@ impl Sentence<Source> {
 impl Sentence<Target> {
     pub fn new(id: u32, lang: &str) -> Self {
         Self {
-            _t: std::marker::PhantomData::<Target>,
+            t: PhantomData::default(),
             id,
             lang: lang.to_string(),
             tokens: Vec::new(),
