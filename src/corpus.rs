@@ -40,6 +40,8 @@ impl Corpus {
     }
 
     /// Creates a new empty document with a unique ID.
+    ///
+    /// This new document can then be added to this corpus using [`add_doc`](Self::add_doc).
     pub fn create_doc(&mut self) -> Document {
         if self.documents.is_empty() {
             return Document::new(0);
@@ -48,6 +50,9 @@ impl Corpus {
     }
 
     /// Adds the specified document to the corpus.
+    ///
+    /// To create a [`Document`](crate::Document) with a proper unique ID, use
+    /// [`create_doc()`](Self::create_doc).
     // TODO: return Result<>, refuse to add document with no sentences
     pub fn add_doc(&mut self, doc: Document) {
         if doc.sentences.is_empty() {

@@ -17,6 +17,8 @@ impl Document {
 
     /// Add already tokenized sentence to the document.
     ///
+    /// To add this sentence to this document, use [`add_sentence()`](Self::add_sentence).
+    ///
     /// # Example
     /// ```no_run
     /// use corporum::new;
@@ -34,6 +36,8 @@ impl Document {
     }
 
     /// Add a [`Sentence`](crate::Sentence) to the document.
+    ///
+    /// To create a new [`Sentence`](crate::Sentence), use [`create_sentence()`](Self::create_sentence).
     ///
     /// # Example
     /// ```no_run
