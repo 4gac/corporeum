@@ -1,17 +1,30 @@
 use core::fmt;
 
+/// Represents all possible errors.
 #[derive(Debug)]
 pub enum CorporeumError {
+    /// I/O operation failed.
     IOFailed(std::io::Error),
+    /// Failed to deserialize an object.
     FailedToParseIO(std::io::Error),
+    /// The input caused serde to recurse too much.
     FailedToParseRecursionLimitExceeded,
+    /// An error occurred while processing a parsed value.
     FailedToParseSemantic(Option<usize>, String),
+    /// An error occurred while parsing bytes.
+    /// Contains the offset into the stream where the syntax error occurred.
     FailedToParseSyntax(usize),
+    /// Failed to write serialized data to a file.
     FailedToSaveFileIO(std::io::Error),
+    /// Failed to serialize a value.
     FailedToSaveFileValue(String),
+    /// The file extension is unsupported or is missing.
     UnsupportedFileExtension,
+    /// Zlib decompression failed.
     DecompressionError(std::io::Error),
+    /// Zlib compression failed.
     CompressionError(std::io::Error),
+    /// The specified file does not exist or the given path was not a file.
     IncorrectPath(String),
 }
 
