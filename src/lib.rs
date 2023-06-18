@@ -24,6 +24,12 @@ const EXTENSION: &str = "ucf";
 
 /// Creates a new `Corporeum` with an empty corpora from a given path.
 ///
+/// # Warnings
+/// - The specified file must exist __before__ calling this function!
+/// No new file will be created!
+/// - The specified file must __not__ be a directory or a symlink/hardlink.
+/// See "Errors" section below.
+///
 /// # Example
 /// ```
 /// # use corporum::new;
@@ -40,7 +46,7 @@ pub fn new<P: AsRef<Path>>(buffer: P) -> Result<Corporeum, CorporeumError> {
     let corpus = Corpus::default();
 
     let md = std::fs::metadata(buffer.as_ref())?;
-    if md.is_dir() {
+    if !md.is_file() {
         return Err(CorporeumError::IncorrectPath(
             buffer.as_ref().to_str().unwrap_or_default().to_string(),
         ));
