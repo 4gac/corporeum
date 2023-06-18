@@ -36,6 +36,12 @@ impl Corporeum {
     /// }
     /// ```
     ///
+    /// # Errors
+    /// This will return an error if:
+    /// - The serialization fails
+    /// - Target file could not be opened
+    /// - Compression fails
+    ///
     /// To save the corpus under a different file name, you may want to
     /// use [`save_as()`](Self::save_as) instead.
     #[inline]
@@ -73,13 +79,18 @@ impl Corporeum {
     /// }
     /// ```
     ///
+    /// # Errors
+    /// This will return an error if:
+    /// - The serialization fails
+    /// - Target file could not be opened
+    /// - Compression fails
+    ///
     /// To save the corpus to it's original file, you may want to
     /// use [`save()`](Self::save) instead.
     #[inline]
     pub fn save_as<P: AsRef<Path>>(&self, destination: P) -> Result<(), CorporeumError> {
         let dest = Path::with_extension(destination.as_ref(), EXTENSION);
         let dest = dest.as_path();
-
         let mut data = Vec::new();
 
         into_writer(&self.corpus, Cursor::new(&mut data))?;

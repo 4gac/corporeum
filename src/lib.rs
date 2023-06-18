@@ -1,9 +1,4 @@
-#![allow(
-    clippy::must_use_candidate,
-    clippy::missing_panics_doc,
-    clippy::missing_errors_doc,
-    clippy::module_name_repetitions
-)]
+#![allow(clippy::must_use_candidate, clippy::module_name_repetitions)]
 //
 //! A library for working with text corpora.
 //
@@ -35,7 +30,7 @@ const EXTENSION: &str = "ucf";
 /// let corp = new("some_file.ucf");
 /// ```
 ///
-/// # Erros
+/// # Errors
 /// If the given file does not exist or is inaccessible, an error is returned.
 ///
 /// To load a `Corpus` from a `.ucf` file, you may want to
@@ -76,6 +71,9 @@ pub fn new<P: AsRef<Path>>(buffer: P) -> Result<Corporeum, CorporeumError> {
 /// - The contents could not be decompressed.
 /// - The file extension is incorrect (only `.ucf` is supported)
 /// - The contents could not be deserialized.
+///
+/// # Panics
+/// This will panic if the file extension could not be determined.
 ///
 #[inline]
 pub fn load<P: AsRef<Path>>(source: P) -> Result<Corporeum, CorporeumError> {

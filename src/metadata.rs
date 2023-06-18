@@ -40,6 +40,7 @@ impl Metadata {
     }
 
     /// Returns the description of this metadata.
+    #[allow(clippy::missing_panics_doc)]
     pub fn description(&self) -> &str {
         self.description.as_ref().unwrap()
     }
