@@ -56,6 +56,14 @@ impl Document {
         self.sentences.push(sent);
     }
 
+    pub fn remove_sentence(&mut self, id: usize) {
+        self.sentences.remove(id);
+    }
+
+    pub fn get_sentences(&self) -> &Vec<Sentence<Source>> {
+        &self.sentences
+    }
+
     /// Fetch a sentence by its `id` and return a reference to it if exists.
     ///
     //// # Example
@@ -67,7 +75,7 @@ impl Document {
     ///
     /// assert!(doc.sentence_by_id(0).is_none());
     /// ```
-    pub fn sentence_by_id(&self, id: u32) -> Option<&Sentence<Source>> {
+    pub fn get_sentence(&self, id: u32) -> Option<&Sentence<Source>> {
         self.sentences.iter().find(|&sent| sent.id == id)
     }
 
@@ -82,7 +90,7 @@ impl Document {
     ///
     /// assert!(doc.sentence_by_id_mut(0).is_none());
     /// ```
-    pub fn sentence_by_id_mut(&mut self, id: u32) -> Option<&mut Sentence<Source>> {
+    pub fn sentence_mut(&mut self, id: u32) -> Option<&mut Sentence<Source>> {
         self.sentences.iter_mut().find(|sent| sent.id == id)
     }
 }

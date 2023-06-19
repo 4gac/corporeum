@@ -32,6 +32,22 @@ impl Sentence<Source> {
         }
         self.translations.push(translation);
     }
+
+    pub fn remove_translation(&mut self, id: usize) {
+        self.translations.remove(id);
+    }
+
+    pub fn get_translations(&self) -> &Vec<Sentence<Target>> {
+        &self.translations
+    }
+
+    pub fn get_translation(&self, id: u32) -> Option<&Sentence<Target>> {
+        self.translations.iter().find(|trans| trans.id == id)
+    }
+
+    pub fn get_translation_mut(&mut self, id: u32) -> Option<&mut Sentence<Target>> {
+        self.translations.iter_mut().find(|trans| trans.id == id)
+    }
 }
 
 impl Sentence<Target> {
@@ -63,6 +79,10 @@ impl<T> Sentence<T> {
             return;
         }
         self.tokens.push(token);
+    }
+
+    pub fn get_tokens(&self) -> &Vec<Token> {
+        &self.tokens
     }
 
     pub const fn sentence_id(&self) -> u32 {
