@@ -70,15 +70,13 @@ impl Corpus {
     /// This will return an error if the corpus does not contain a document
     /// with the specified ID.
     pub fn remove_document(&mut self, id: u32) -> Result<(), CorporeumError> {
-        let len_before_removal = self.documents.len();
-        self.documents.retain(|d| d.id == id);
-
-        if len_before_removal == self.documents.len() {
-            Err(CorporeumError::ElementNotFound(format!(
+        if id as usize >= self.documents.len() {
+            return Err(CorporeumError::ElementNotFound(format!(
                 "Document with ID {id} does not exist"
-            )))
-        } else {
-            Ok(())
+            )));
         }
+
+        self.documents.remove(id as usize);
+        Ok(())
     }
 }
