@@ -15,7 +15,7 @@ impl Document {
         self.id
     }
 
-    /// Add already tokenized sentence to the document.
+    /// Creates a new `Sentence` with its language set to the specified language.
     ///
     /// To add this sentence to this document, use [`add_sentence()`](Self::add_sentence).
     ///
@@ -47,7 +47,7 @@ impl Document {
     /// doc.add_sentence(sentence);
     ///
     /// // This sentence is empty, so it will *not* be added
-    /// assert!(doc.sentence_by_id(sentence_id).is_none());
+    /// assert!(doc.get_sentence(sentence_id).is_none());
     /// ```
     pub fn add_sentence(&mut self, sent: Sentence<Source>) {
         if sent.tokens.is_empty() {
@@ -73,7 +73,7 @@ impl Document {
     /// let mut corp = new("...").unwrap();
     /// let mut doc = corp.corpus_mut().create_doc();
     ///
-    /// assert!(doc.sentence_by_id(0).is_none());
+    /// assert!(doc.get_sentence(0).is_none());
     /// ```
     pub fn get_sentence(&self, id: u32) -> Option<&Sentence<Source>> {
         self.sentences.iter().find(|&sent| sent.id == id)
@@ -88,7 +88,7 @@ impl Document {
     /// let mut corp = new("...").unwrap();
     /// let mut doc = corp.corpus_mut().create_doc();
     ///
-    /// assert!(doc.sentence_by_id_mut(0).is_none());
+    /// assert!(doc.sentence_mut(0).is_none());
     /// ```
     pub fn sentence_mut(&mut self, id: u32) -> Option<&mut Sentence<Source>> {
         self.sentences.iter_mut().find(|sent| sent.id == id)

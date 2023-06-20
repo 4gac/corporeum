@@ -26,7 +26,7 @@ const EXTENSION: &str = "ucf";
 ///
 /// # Warnings
 /// - The function only creates an in-memory representation.
-///  No new file will not be created, until ['save()'](Corporeum::save) or ['save_as()'](Corporeum::save_as) function is called!
+///  No new file will be created, until ['save()'](Corporeum::save) or ['save_as()'](Corporeum::save_as) is called!
 ///
 /// # Example
 /// ```
