@@ -39,6 +39,58 @@ impl Metadata {
             .retain(|a| a.first_name == first_name && a.last_name == last_name);
     }
 
+    /// Find authors by their first and/or last name.  
+    /// If either one of the arguments are `None`, they will not be compared.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use corporum::Metadata;
+    ///
+    /// let meta: Metadata = todo!();
+    ///
+    /// // Find authors whose first name is John
+    /// meta.find_authors(Some("John"), None);
+    ///
+    /// // Find authors whose first name is John and last name is Kenny
+    /// meta.find_authors(Some("John"), Some("Kenny"));
+    ///
+    /// // Find authors whose last name is Kenny
+    /// meta.find_authors(None, Some("Kenny"));
+    ///
+    /// // Returns an empty vector
+    /// meta.find_authors(None, None);
+    /// ```
+    pub fn find_authors(&self, first_name: Option<&str>, last_name: Option<&str>) -> Vec<&Author> {
+        if first_name.is_none() && last_name.is_none() {
+            return Vec::new();
+        }
+
+        self.authors
+            .iter()
+            .filter(|author| {
+                (first_name.map_or(false, |name| name == author.first_name))
+                    | (last_name.map_or(false, |name| name == author.last_name))
+            })
+            .collect()
+    }
+
+    /// Looks for an author with the specified first and last name and returns a reference to it if exists.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use corporum::Metadata;
+    ///
+    /// let meta: Metadata = todo!();
+    /// let author = meta.get_author("John", "Kenny").unwrap();
+    ///
+    /// println!("{author:?}");
+    /// ```
+    pub fn get_author(&self, first_name: &str, last_name: &str) -> Option<&Author> {
+        self.authors
+            .iter()
+            .find(|author| author.first_name == first_name && author.last_name == last_name)
+    }
+
     /// Returns the description of this metadata.
     #[allow(clippy::missing_panics_doc)]
     pub fn description(&self) -> &str {
