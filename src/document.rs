@@ -85,7 +85,7 @@ impl Document {
     ///     println!("{sentence:#?}");
     /// }
     /// ```
-    pub fn get_sentences(&self) -> &Vec<Sentence<Source>> {
+    pub const fn get_sentences(&self) -> &Vec<Sentence<Source>> {
         &self.sentences
     }
 

@@ -22,17 +22,20 @@ mod token;
 /// Unified Corpora Format
 const EXTENSION: &str = "ucf";
 
-/// Creates a new `Corporeum` with an empty corpora from a given path. The path is used when ['save()'](Corporeum::save) function is called.
+/// Creates a new `Corporeum` with an empty corpora from a given path. The path is used when [`save()`](Corporeum::save) function is called.
 ///
 /// # Warnings
 /// - The function only creates an in-memory representation.
-///  No new file will be created, until ['save()'](Corporeum::save) or ['save_as()'](Corporeum::save_as) is called!
+///  No new file will be created, until [`save()`](Corporeum::save) or [`save_as()`](Corporeum::save_as) is called!
 ///
 /// # Example
 /// ```
 /// # use corporum::new;
 /// let corp = new("some_file.ucf");
 /// ```
+///
+/// # Errors
+/// This function will never return an error.
 ///
 /// To load a `Corpus` from a `.ucf` file, you may want to
 /// use [`load()`](load) instead.

@@ -37,7 +37,7 @@ impl Sentence<Source> {
         self.translations.remove(id);
     }
 
-    pub fn get_translations(&self) -> &Vec<Sentence<Target>> {
+    pub const fn get_translations(&self) -> &Vec<Sentence<Target>> {
         &self.translations
     }
 
@@ -81,7 +81,7 @@ impl<T> Sentence<T> {
         self.tokens.push(token);
     }
 
-    pub fn get_tokens(&self) -> &Vec<Token> {
+    pub const fn get_tokens(&self) -> &Vec<Token> {
         &self.tokens
     }
 
