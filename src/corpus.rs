@@ -1,4 +1,7 @@
-use crate::schema::{Corpus, Document, Metadata};
+use crate::{
+    schema::{Corpus, Document, Metadata},
+    CorporeumError,
+};
 
 impl Corpus {
     /// Return a reference to Metadata.
@@ -48,19 +51,34 @@ impl Corpus {
 
     /// Adds the specified document to the corpus.
     ///
+    /// # Errors
+    /// This will return an error if the specified document is empty (contains no sentences).
+    ///
     /// To create a [`Document`](crate::Document) with a proper unique ID, use
     /// [`create_doc()`](Self::create_doc).
-    // TODO: return Result<>, refuse to add document with no sentences
-    pub fn add_doc(&mut self, doc: Document) {
+    pub fn add_doc(&mut self, doc: Document) -> Result<(), CorporeumError> {
         if doc.sentences.is_empty() {
-            return;
+            return Err(CorporeumError::EmptyDocument);
         }
         self.documents.push(doc);
+        Ok(())
     }
 
     /// Removes a document from the corpus by id.
-    // TODO: return Result<>, failed to remove doc, if id was not found
-    pub fn remove_document(&mut self, id: u32) {
+    ///
+    /// # Errors
+    /// This will return an error if the corpus does not contain a document
+    /// with the specified ID.
+    pub fn remove_document(&mut self, id: u32) -> Result<(), CorporeumError> {
+        let len_before_removal = self.documents.len();
         self.documents.retain(|d| d.id == id);
+
+        if len_before_removal == self.documents.len() {
+            Err(CorporeumError::ElementNotFound(format!(
+                "Document with ID {id} does not exist"
+            )))
+        } else {
+            Ok(())
+        }
     }
 }

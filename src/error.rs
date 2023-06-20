@@ -26,6 +26,10 @@ pub enum CorporeumError {
     CompressionError(std::io::Error),
     /// The specified file does not exist or the given path was not a file.
     IncorrectPath(String),
+    /// Document has no sentences in it
+    EmptyDocument,
+    /// An element was not found
+    ElementNotFound(String),
 }
 
 impl fmt::Display for CorporeumError {
@@ -69,6 +73,8 @@ impl fmt::Display for CorporeumError {
                 f,
                 "Cannot create file {path}. Input should be a file, not a directory"
             ),
+            Self::EmptyDocument => write!(f, "Document has no sentences in it"),
+            Self::ElementNotFound(desc) => write!(f, "{desc}"),
         }
     }
 }
