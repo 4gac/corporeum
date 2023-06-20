@@ -1,4 +1,7 @@
-use crate::schema::{Document, Sentence, Source};
+use crate::{
+    schema::{Document, Sentence, Source},
+    CorporeumError,
+};
 
 impl Document {
     pub(crate) const fn new(id: u32) -> Self {
@@ -44,16 +47,22 @@ impl Document {
     /// let mut doc = corp.corpus_mut().create_doc();
     /// let sentence = doc.create_sentence("en");
     /// let sentence_id = sentence.sentence_id();
-    /// doc.add_sentence(sentence);
+    /// doc.add_sentence(sentence).unwrap_err();
     ///
     /// // This sentence is empty, so it will *not* be added
     /// assert!(doc.get_sentence(sentence_id).is_none());
     /// ```
-    pub fn add_sentence(&mut self, sent: Sentence<Source>) {
+    ///
+    /// # Errors
+    /// This will return an error if the specified sentence has no tokens in it.
+    pub fn add_sentence(&mut self, sent: Sentence<Source>) -> Result<(), CorporeumError> {
         if sent.tokens.is_empty() {
-            return;
+            return Err(CorporeumError::EmptyObject(
+                "Sentence has no tokens in it".to_owned(),
+            ));
         }
         self.sentences.push(sent);
+        Ok(())
     }
 
     /// Removes a sentence from this `Document` by its ID.
@@ -64,12 +73,22 @@ impl Document {
     ///
     /// let mut corp = load("...").unwrap();
     /// let mut doc = corp.corpus_mut().doc_by_id_mut(0).unwrap();
-    /// doc.remove_sentence(0);
+    /// doc.remove_sentence(0).unwrap();
     ///
     /// corp.save();
     /// ```
-    pub fn remove_sentence(&mut self, id: usize) {
+    ///
+    /// # Errors
+    /// This will return an error if the specified sentence does not exist.
+    pub fn remove_sentence(&mut self, id: usize) -> Result<(), CorporeumError> {
+        if id >= self.sentences.len() {
+            return Err(CorporeumError::ElementNotFound(format!(
+                "Sentence with ID {id} does not exist"
+            )));
+        }
+
         self.sentences.remove(id);
+        Ok(())
     }
 
     /// Get a reference to a vector containing all sentences in this `Document`.

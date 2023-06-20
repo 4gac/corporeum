@@ -58,7 +58,9 @@ impl Corpus {
     /// [`create_doc()`](Self::create_doc).
     pub fn add_doc(&mut self, doc: Document) -> Result<(), CorporeumError> {
         if doc.sentences.is_empty() {
-            return Err(CorporeumError::EmptyDocument);
+            return Err(CorporeumError::EmptyObject(
+                "Document has no sentences in it".to_owned(),
+            ));
         }
         self.documents.push(doc);
         Ok(())
