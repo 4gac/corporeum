@@ -71,7 +71,7 @@ pub fn new<P: AsRef<Path>>(buffer: P) -> Result<Corporeum, CorporeumError> {
 #[inline]
 pub fn load<P: AsRef<Path>>(source: P) -> Result<Corporeum, CorporeumError> {
     let input_data = fs::read(&source)?;
-    let mut decompresed = Vec::new();
+    let mut decompressed = Vec::new();
     let mut decompressor = ZlibDecoder::new(&input_data[..]);
     let extension = source
         .as_ref()
@@ -80,11 +80,11 @@ pub fn load<P: AsRef<Path>>(source: P) -> Result<Corporeum, CorporeumError> {
         .ok_or(CorporeumError::UnsupportedFileExtension)?;
 
     decompressor
-        .read_to_end(&mut decompresed)
+        .read_to_end(&mut decompressed)
         .map_err(CorporeumError::DecompressionError)?;
 
     let corpus: Corpus = match extension {
-        EXTENSION => from_reader(decompresed.as_slice())?,
+        EXTENSION => from_reader(decompressed.as_slice())?,
         _ => return Err(CorporeumError::UnsupportedFileExtension),
     };
     Ok(Corporeum {

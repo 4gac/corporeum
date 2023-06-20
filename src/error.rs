@@ -57,10 +57,10 @@ impl fmt::Display for CorporeumError {
             ),
             Self::FailedToSaveFileIO(err) => write!(
                 f,
-                "Failed to save file. An error occured while writing bytes: {err}"
+                "Failed to save file. An error occurred while writing bytes: {err}"
             ),
             Self::FailedToSaveFileValue(desc) => {
-                write!(f, "Failed to save file. Value cannot be serialzed: {desc}")
+                write!(f, "Failed to save file. Value cannot be serialized: {desc}")
             }
             Self::UnsupportedFileExtension => write!(f, "Unsupported file extension"),
             Self::DecompressionError(err) => write!(f, "Decompression failed: {err}"),

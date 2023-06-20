@@ -109,5 +109,5 @@ pub struct Token {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) deps: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) misc: Option<String>, // this is here only for compatibilty reasons with CoNLL-U
+    pub(crate) misc: Option<String>, // this is here only for compatibility reasons with CoNLL-U
 }

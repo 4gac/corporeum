@@ -27,7 +27,7 @@ impl Corpus {
         &mut self.documents
     }
 
-    /// Fetch a document in the `Corpus` by id and retur a reference to it.
+    /// Fetch a document in the `Corpus` by id and return a reference to it.
     /// Returns `None` if the document does not exist in the corpus.
     pub fn doc_by_id(&self, id: u32) -> Option<&Document> {
         self.documents.iter().find(|&doc| doc.doc_id() == id)
