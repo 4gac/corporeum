@@ -56,10 +56,35 @@ impl Document {
         self.sentences.push(sent);
     }
 
+    /// Removes a sentence from this `Document` by its ID.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use corporum::load;
+    ///
+    /// let mut corp = load("...").unwrap();
+    /// let mut doc = corp.corpus_mut().doc_by_id_mut(0).unwrap();
+    /// doc.remove_sentence(0);
+    ///
+    /// corp.save();
+    /// ```
     pub fn remove_sentence(&mut self, id: usize) {
         self.sentences.remove(id);
     }
 
+    /// Get a reference to a vector containing all sentences in this `Document`.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use corporum::load;
+    ///
+    /// let mut corp = load("...").unwrap();
+    /// let mut doc = corp.corpus_mut().doc_by_id_mut(0).unwrap();
+    ///
+    /// for sentence in doc.get_sentences() {
+    ///     println!("{sentence:#?}");
+    /// }
+    /// ```
     pub fn get_sentences(&self) -> &Vec<Sentence<Source>> {
         &self.sentences
     }
