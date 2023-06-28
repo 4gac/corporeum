@@ -85,7 +85,7 @@ impl<T> Sentence<T> {
         &self.tokens
     }
 
-    pub const fn sentence_id(&self) -> u32 {
+    pub const fn get_sentence_id(&self) -> u32 {
         self.id
     }
 }

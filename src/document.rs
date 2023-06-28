@@ -14,7 +14,7 @@ impl Document {
     }
 
     /// Return the ID of this document.
-    pub const fn doc_id(&self) -> u32 {
+    pub const fn get_doc_id(&self) -> u32 {
         self.id
     }
 
@@ -134,7 +134,7 @@ impl Document {
     ///
     /// assert!(doc.sentence_mut(0).is_none());
     /// ```
-    pub fn sentence_mut(&mut self, id: u32) -> Option<&mut Sentence<Source>> {
+    pub fn get_sentence_mut(&mut self, id: u32) -> Option<&mut Sentence<Source>> {
         self.sentences.iter_mut().find(|sent| sent.id == id)
     }
 }
