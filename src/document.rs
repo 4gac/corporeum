@@ -24,10 +24,10 @@ impl Document {
     ///
     /// # Example
     /// ```no_run
-    /// use corporum::new;
+    /// use corporum::Corpus;
     ///
-    /// let mut corp = new("...").unwrap();
-    /// let mut doc = corp.corpus_mut().create_doc();
+    /// let mut corp = Corpus::new();
+    /// let mut doc = corp.create_doc();
     ///
     /// doc.create_sentence("en");
     /// ```
@@ -41,12 +41,12 @@ impl Document {
     ///
     /// # Example
     /// ```no_run
-    /// use corporum::new;
+    /// use corporum::Corpus;
     ///
-    /// let mut corp = new("...").unwrap();
-    /// let mut doc = corp.corpus_mut().create_doc();
+    /// let mut corp = Corpus::new();
+    /// let mut doc = corp.create_doc();
     /// let sentence = doc.create_sentence("en");
-    /// let sentence_id = sentence.sentence_id();
+    /// let sentence_id = sentence.get_sentence_id();
     /// doc.add_sentence(sentence).unwrap_err();
     ///
     /// // This sentence is empty, so it will *not* be added
@@ -69,13 +69,13 @@ impl Document {
     ///
     /// # Example
     /// ```no_run
-    /// use corporum::load;
+    /// use corporum::Corpus;
+    /// use std::fs::File;
     ///
-    /// let mut corp = load("...").unwrap();
-    /// let mut doc = corp.corpus_mut().doc_by_id_mut(0).unwrap();
+    /// let src = File::open("some_file.ucf").unwrap();
+    /// let mut corp = Corpus::load(src).unwrap();
+    /// let mut doc = corp.get_doc_mut(0).unwrap();
     /// doc.remove_sentence(0).unwrap();
-    ///
-    /// corp.save();
     /// ```
     ///
     /// # Errors
@@ -95,10 +95,12 @@ impl Document {
     ///
     /// # Example
     /// ```no_run
-    /// use corporum::load;
+    /// use corporum::Corpus;
+    /// use std::fs::File;
     ///
-    /// let mut corp = load("...").unwrap();
-    /// let mut doc = corp.corpus_mut().doc_by_id_mut(0).unwrap();
+    /// let src = File::open("some_file.ucf").unwrap();
+    /// let mut corp = Corpus::load(src).unwrap();
+    /// let mut doc = corp.get_doc_mut(0).unwrap();
     ///
     /// for sentence in doc.get_sentences() {
     ///     println!("{sentence:#?}");
@@ -112,10 +114,10 @@ impl Document {
     ///
     //// # Example
     /// ```no_run
-    /// use corporum::new;
+    /// use corporum::Corpus;
     ///
-    /// let mut corp = new("...").unwrap();
-    /// let mut doc = corp.corpus_mut().create_doc();
+    /// let mut corp = Corpus::new();
+    /// let mut doc = corp.create_doc();
     ///
     /// assert!(doc.get_sentence(0).is_none());
     /// ```
@@ -127,12 +129,12 @@ impl Document {
     ///
     //// # Example
     /// ```no_run
-    /// use corporum::new;
+    /// use corporum::Corpus;
     ///
-    /// let mut corp = new("...").unwrap();
-    /// let mut doc = corp.corpus_mut().create_doc();
+    /// let mut corp = Corpus::new();
+    /// let mut doc = corp.create_doc();
     ///
-    /// assert!(doc.sentence_mut(0).is_none());
+    /// assert!(doc.get_sentence(0).is_none());
     /// ```
     pub fn get_sentence_mut(&mut self, id: u32) -> Option<&mut Sentence<Source>> {
         self.sentences.iter_mut().find(|sent| sent.id == id)

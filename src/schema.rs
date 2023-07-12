@@ -3,11 +3,6 @@ use serde::Serialize;
 use std::marker::PhantomData;
 
 /// Represents a text corpus.
-///
-/// This structure __cannot__ be created by the user!
-/// To create it, you must create a [`Corporeum`](crate::corporeum::Corporeum)
-/// first (using either [`new()`](crate::new) or [`load()`](crate::load)).
-/// Then call [`corpus()`](crate::corporeum::Corporeum::corpus) (or [`corpus_mut()`](crate::corporeum::Corporeum::corpus_mut)).
 #[derive(Deserialize, Serialize, Debug, Default)]
 #[serde(rename = "corpus")]
 pub struct Corpus {
