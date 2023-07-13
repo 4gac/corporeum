@@ -84,10 +84,9 @@ impl Corpus {
     /// - The serialization fails
     /// - Compression fails
     pub fn save_stream(&self) -> Result<Box<dyn Read>, CorporeumError> {
-        let result = Vec::new();
-        let mut result_cursor = Cursor::new(result);
-
+        let mut result_cursor = Cursor::new(Vec::new());
         let mut serialized = Vec::new();
+
         into_writer(self, Cursor::new(&mut serialized))?;
 
         {
@@ -111,16 +110,35 @@ impl Corpus {
     /// let corp = Corpus::new();
     /// // ... do some work ...
     ///
-    /// // This will save the corpus into ./some_file.ucf
-    /// if let Err(e) = corp.save_stream() {
-    ///     eprintln!("Failed to save: {e}");
-    /// }
-    ///
     /// let mut file = OpenOptions::new().write(true).open("some_file.ucf").unwrap();
     /// match corp.save_into(file) {
     ///     Ok(()) => println!("OK"),
     ///     Err(e) => eprintln!("Failed to save: {e}"),
     /// }
+    /// ```
+    ///
+    /// # Example with arrays
+    /// You can also serialize the corpus into an array of bytes.
+    /// ## Vectors
+    /// ```
+    /// # use corporum::Corpus;
+    /// use std::io::Cursor;
+    ///
+    /// let corp = Corpus::new();
+    /// // fill the corpus with data...
+    /// let mut cursor = Cursor::new(Vec::new());
+    ///
+    /// corp.save_into(&mut cursor).unwrap();
+    /// let bytes: Vec<u8> = cursor.into_inner();
+    /// ```
+    /// ## Static arrays
+    /// ```
+    /// # use corporum::Corpus;
+    /// let mut buf = [0u8; 256];
+    /// let corp = Corpus::new();
+    /// // fill the corpus with data...
+    ///
+    /// corp.save_into(&mut buf[..]).unwrap();
     /// ```
     ///
     /// # Errors
