@@ -1,9 +1,162 @@
+use ciborium::{from_reader, into_writer};
+use flate2::{read::ZlibDecoder, write::ZlibEncoder, Compression};
+use std::io::{Cursor, Read, Write};
+
 use crate::{
     schema::{Corpus, Document, Metadata},
     CorporeumError,
 };
 
 impl Corpus {
+    /// Creates a new empty `Corpus`.
+    ///
+    /// # Warnings
+    /// - The function only creates an in-memory representation.
+    ///
+    /// # Example
+    /// ```
+    /// # use corporum::Corpus;
+    /// let corp = Corpus::new();
+    /// ```
+    ///
+    /// # Errors
+    /// This function will never return an error.
+    pub const fn new() -> Self {
+        Self {
+            metadata: None,
+            documents: Vec::new(),
+        }
+    }
+
+    /// Load an already existing corpus from a stream.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use corporum::Corpus;
+    /// # use std::fs::File;
+    /// let file = File::open("some_file.ucf").unwrap();
+    /// let corp = match Corpus::load(file) {
+    ///     Ok(corp) => corp,
+    ///     Err(e) => panic!("Error loading corpus: {e}"),
+    /// };
+    ///
+    /// // ...
+    /// ```
+    ///
+    /// # Errors
+    /// This will return an error if:
+    /// - The contents could not be decompressed.
+    /// - The contents could not be deserialized.
+    pub fn load<R: Read>(source: R) -> Result<Self, CorporeumError> {
+        let mut decompressed = Vec::new();
+        let mut decompressor = ZlibDecoder::new(source);
+
+        decompressor
+            .read_to_end(&mut decompressed)
+            .map_err(CorporeumError::DecompressionError)?;
+
+        Ok(from_reader(decompressed.as_slice())?)
+    }
+
+    /// Save the corpus into a readable stream of bytes.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use corporum::Corpus;
+    /// # use std::fs::OpenOptions;
+    /// # use std::process::exit;
+    /// #
+    /// let corp = Corpus::new();
+    /// // ... do some work ...
+    ///
+    /// let mut stream = match corp.save_stream() {
+    ///     Ok(stream) => stream,
+    ///     Err(e) => {
+    ///         eprintln!("Failed to save: {e}");
+    ///         exit(0);
+    ///     },
+    /// };
+    /// // ...
+    /// ```
+    ///
+    /// # Errors
+    /// This will return an error if:
+    /// - The serialization fails
+    /// - Compression fails
+    pub fn save_stream(&self) -> Result<Box<dyn Read>, CorporeumError> {
+        let mut result_cursor = Cursor::new(Vec::new());
+        let mut serialized = Vec::new();
+
+        into_writer(self, Cursor::new(&mut serialized))?;
+
+        {
+            let mut compressor = ZlibEncoder::new(&mut result_cursor, Compression::best());
+
+            compressor
+                .write_all(&serialized)
+                .map_err(CorporeumError::CompressionError)?;
+        }
+
+        Ok(Box::new(result_cursor))
+    }
+
+    /// Save the corpus into a writable stream.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use corporum::Corpus;
+    /// # use std::fs::OpenOptions;
+    /// #
+    /// let corp = Corpus::new();
+    /// // ... do some work ...
+    ///
+    /// let mut file = OpenOptions::new().write(true).open("some_file.ucf").unwrap();
+    /// match corp.save_into(file) {
+    ///     Ok(()) => println!("OK"),
+    ///     Err(e) => eprintln!("Failed to save: {e}"),
+    /// }
+    /// ```
+    ///
+    /// # Example with arrays
+    /// You can also serialize the corpus into an array of bytes.
+    /// ## Vectors
+    /// ```
+    /// # use corporum::Corpus;
+    /// use std::io::Cursor;
+    ///
+    /// let corp = Corpus::new();
+    /// // fill the corpus with data...
+    /// let mut cursor = Cursor::new(Vec::new());
+    ///
+    /// corp.save_into(&mut cursor).unwrap();
+    /// let bytes: Vec<u8> = cursor.into_inner();
+    /// ```
+    /// ## Static arrays
+    /// ```
+    /// # use corporum::Corpus;
+    /// let mut buf = [0u8; 256];
+    /// let corp = Corpus::new();
+    /// // fill the corpus with data...
+    ///
+    /// corp.save_into(&mut buf[..]).unwrap();
+    /// ```
+    ///
+    /// # Errors
+    /// This will return an error if:
+    /// - The serialization fails
+    /// - Compression fails
+    pub fn save_into<W: Write>(&self, dest: W) -> Result<(), CorporeumError> {
+        let mut serialized = Vec::new();
+        into_writer(self, Cursor::new(&mut serialized))?;
+
+        let mut compressor = ZlibEncoder::new(dest, Compression::best());
+        compressor
+            .write_all(&serialized)
+            .map_err(CorporeumError::CompressionError)?;
+
+        Ok(())
+    }
+
     /// Return a reference to Metadata.
     pub const fn get_metadata(&self) -> Option<&Metadata> {
         self.metadata.as_ref()
