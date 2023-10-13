@@ -7,7 +7,7 @@ use std::marker::PhantomData;
 impl Sentence<Source> {
     pub(crate) fn new(id: u32, lang: &str) -> Self {
         Self {
-            t: PhantomData::default(),
+            t: PhantomData,
             id,
             lang: lang.to_string(),
             tokens: Vec::new(),
@@ -53,7 +53,7 @@ impl Sentence<Source> {
 impl Sentence<Target> {
     pub(crate) fn new(id: u32, lang: &str) -> Self {
         Self {
-            t: PhantomData::default(),
+            t: PhantomData,
             id,
             lang: lang.to_string(),
             tokens: Vec::new(),
