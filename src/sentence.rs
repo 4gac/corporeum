@@ -88,27 +88,4 @@ impl<T> Sentence<T> {
     pub const fn get_sentence_id(&self) -> u32 {
         self.id
     }
-
-    pub fn get_text(&self) -> String {
-        let words = self.get_tokens().iter().map(Token::get_form);
-        let mut result = String::with_capacity(words.len());
-
-        for word in words {
-            if word.len() == 1 {
-                // SAFETY: Length is at least 1
-                let character = unsafe { word.chars().next().unwrap_unchecked() };
-
-                if character.is_ascii_punctuation() {
-                    result.pop();
-                    result.push(character);
-                    continue;
-                }
-            }
-
-            result.push_str(word);
-            result.push(' ');
-        }
-
-        result
-    }
 }
