@@ -1,8 +1,8 @@
-use ciborium::{from_reader, into_writer};
-use flate2::{read::ZlibDecoder, write::ZlibEncoder, Compression};
 use std::io::{Cursor, Read, Write};
 
 use crate::{
+    compression::Compression,
+    format::Format,
     schema::{Corpus, Document, Metadata},
     CorporeumError,
 };
@@ -28,130 +28,120 @@ impl Corpus {
         }
     }
 
-    /// Load an already existing corpus from a stream.
-    ///
-    /// # Example
-    /// ```no_run
-    /// # use corporum::Corpus;
-    /// # use std::fs::File;
-    /// let file = File::open("some_file.ucf").unwrap();
-    /// let corp = match Corpus::load(file) {
-    ///     Ok(corp) => corp,
-    ///     Err(e) => panic!("Error loading corpus: {e}"),
-    /// };
-    ///
-    /// // ...
-    /// ```
-    ///
-    /// # Errors
-    /// This will return an error if:
-    /// - The contents could not be decompressed.
-    /// - The contents could not be deserialized.
-    pub fn load<R: Read>(source: R) -> Result<Self, CorporeumError> {
-        let mut decompressed = Vec::new();
-        let mut decompressor = ZlibDecoder::new(source);
+    pub fn load<R: Read>(
+        source: R,
+        format: Format,
+        compression: Option<Compression>,
+    ) -> Result<Self, CorporeumError> {
+        let mut raw = Vec::new();
 
-        decompressor
-            .read_to_end(&mut decompressed)
-            .map_err(CorporeumError::DecompressionError)?;
+        if let Some(format) = compression {
+            match format {
+                #[cfg(feature = "flate2-compression")]
+                Compression::Flate2 => {
+                    use flate2::read::ZlibDecoder;
+                    let mut decompressor = ZlibDecoder::new(source);
 
-        Ok(from_reader(decompressed.as_slice())?)
-    }
+                    decompressor
+                        .read_to_end(&mut raw)
+                        .map_err(CorporeumError::DecompressionError)?;
+                }
+                #[cfg(feature = "zstd-compression")]
+                Compression::Zstd => {
+                    zstd::stream::copy_decode(source, &mut raw)
+                        .map_err(CorporeumError::DecompressionError)?;
+                }
+                #[cfg(feature = "lzma-compression")]
+                Compression::Lzma2 => {
+                    use std::io::{BufReader, Error, ErrorKind};
+                    let mut buffered_source = BufReader::new(source);
 
-    /// Save the corpus into a readable stream of bytes.
-    ///
-    /// # Example
-    /// ```no_run
-    /// # use corporum::Corpus;
-    /// # use std::fs::OpenOptions;
-    /// # use std::process::exit;
-    /// #
-    /// let corp = Corpus::new();
-    /// // ... do some work ...
-    ///
-    /// let mut stream = match corp.save_stream() {
-    ///     Ok(stream) => stream,
-    ///     Err(e) => {
-    ///         eprintln!("Failed to save: {e}");
-    ///         exit(0);
-    ///     },
-    /// };
-    /// // ...
-    /// ```
-    ///
-    /// # Errors
-    /// This will return an error if:
-    /// - The serialization fails
-    /// - Compression fails
-    pub fn save_stream(&self) -> Result<Box<dyn Read>, CorporeumError> {
-        let mut serialized = Vec::new();
-        let mut compressed = Vec::new();
-        into_writer(self, &mut serialized)?;
-
-        {
-            let mut compressor = ZlibEncoder::new(&mut compressed, Compression::best());
-
-            compressor
-                .write_all(&serialized)
-                .map_err(CorporeumError::CompressionError)?;
+                    lzma_rs::xz_decompress(&mut buffered_source, &mut raw).map_err(|e| {
+                        CorporeumError::DecompressionError(Error::new(
+                            ErrorKind::Other,
+                            e.to_string(),
+                        ))
+                    })?;
+                }
+            }
         }
 
-        Ok(Box::new(Cursor::new(compressed)))
+        match format {
+            #[cfg(feature = "cbor-format")]
+            Format::Cbor => ciborium::from_reader(raw.as_slice())?,
+            #[cfg(feature = "json-format")]
+            Format::Json => serde_json::de::from_slice(&raw)?,
+            #[cfg(feature = "xml-format")]
+            Format::Xml => serde_xml_rs::de::from_reader(raw.as_slice())?,
+            #[cfg(feature = "rmp-format")]
+            Format::Rmp => rmp_serde::decode::from_slice(&raw)?,
+            #[cfg(feature = "bincode-format")]
+            Format::Bincode => bincode::deserialize(&raw)?,
+        }
+
+        todo!()
     }
 
-    /// Save the corpus into a writable stream.
-    ///
-    /// # Example
-    /// ```no_run
-    /// # use corporum::Corpus;
-    /// # use std::fs::OpenOptions;
-    /// #
-    /// let corp = Corpus::new();
-    /// // ... do some work ...
-    ///
-    /// let mut file = OpenOptions::new().write(true).open("some_file.ucf").unwrap();
-    /// match corp.save_into(file) {
-    ///     Ok(()) => println!("OK"),
-    ///     Err(e) => eprintln!("Failed to save: {e}"),
-    /// }
-    /// ```
-    ///
-    /// # Example with arrays
-    /// You can also serialize the corpus into an array of bytes.
-    /// ## Vectors
-    /// ```
-    /// # use corporum::Corpus;
-    /// use std::io::Cursor;
-    ///
-    /// let corp = Corpus::new();
-    /// // fill the corpus with data...
-    /// let mut cursor = Cursor::new(Vec::new());
-    ///
-    /// corp.save_into(&mut cursor).unwrap();
-    /// let bytes: Vec<u8> = cursor.into_inner();
-    /// ```
-    /// ## Static arrays
-    /// ```
-    /// # use corporum::Corpus;
-    /// let mut buf = [0u8; 256];
-    /// let corp = Corpus::new();
-    /// // fill the corpus with data...
-    ///
-    /// corp.save_into(&mut buf[..]).unwrap();
-    /// ```
-    ///
-    /// # Errors
-    /// This will return an error if:
-    /// - The serialization fails
-    /// - Compression fails
-    pub fn save_into<W: Write>(&self, dest: W) -> Result<(), CorporeumError> {
-        let mut serialized = Vec::new();
-        into_writer(self, &mut serialized)?;
+    #[allow(unused_assignments)] // Wrong?
+    pub fn save_stream(
+        &self,
+        format: Format,
+        compression: Option<Compression>,
+    ) -> Result<Box<dyn Read>, CorporeumError> {
+        let mut result = Vec::new();
 
-        let mut compressor = ZlibEncoder::new(dest, Compression::best());
-        compressor
-            .write_all(&serialized)
-            .map_err(CorporeumError::CompressionError)?;
+        self.save_into(&mut result, format, compression)?;
+
+        Ok(Box::new(Cursor::new(result)))
+    }
+
+    #[cfg_attr(not(feature = "lzma-compression"), allow(unused_mut))]
+    pub fn save_into<W: Write>(
+        &self,
+        mut dest: W,
+        format: Format,
+        compression: Option<Compression>,
+    ) -> Result<(), CorporeumError> {
+        let raw = match format {
+            #[cfg(feature = "cbor-format")]
+            Format::Cbor => {
+                let mut serialized = Vec::new();
+                ciborium::into_writer(self, &mut serialized)?;
+                serialized
+            }
+            #[cfg(feature = "json-format")]
+            Format::Json => serde_json::to_string(self)?.bytes().collect(),
+            #[cfg(feature = "xml-format")]
+            Format::Xml => serde_xml_rs::to_string(self)?.bytes().collect(),
+            #[cfg(feature = "rmp-format")]
+            Format::Rmp => rmp_serde::to_vec(self)?,
+            #[cfg(feature = "bincode-format")]
+            Format::Bincode => bincode::serialize(self)?,
+        };
+
+        if let Some(format) = compression {
+            match format {
+                #[cfg(feature = "flate2-compression")]
+                Compression::Flate2 => {
+                    use flate2::{write::ZlibEncoder, Compression};
+
+                    let mut compressor = ZlibEncoder::new(dest, Compression::best());
+                    compressor.write_all(&raw)?;
+                }
+                #[cfg(feature = "zstd-compression")]
+                Compression::Zstd => {
+                    zstd::stream::copy_encode(raw.as_slice(), dest, 22)?;
+                }
+                #[cfg(feature = "lzma-compression")]
+                Compression::Lzma2 => {
+                    use lzma_rs::xz_compress;
+                    use std::io::BufReader;
+
+                    let mut buffered_source = BufReader::new(raw.as_slice());
+                    xz_compress(&mut buffered_source, &mut dest)?;
+                }
+            }
+        }
 
         Ok(())
     }
