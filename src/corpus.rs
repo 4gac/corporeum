@@ -84,20 +84,19 @@ impl Corpus {
     /// - The serialization fails
     /// - Compression fails
     pub fn save_stream(&self) -> Result<Box<dyn Read>, CorporeumError> {
-        let mut result_cursor = Cursor::new(Vec::new());
         let mut serialized = Vec::new();
-
-        into_writer(self, Cursor::new(&mut serialized))?;
+        let mut compressed = Vec::new();
+        into_writer(self, &mut serialized)?;
 
         {
-            let mut compressor = ZlibEncoder::new(&mut result_cursor, Compression::best());
+            let mut compressor = ZlibEncoder::new(&mut compressed, Compression::best());
 
             compressor
                 .write_all(&serialized)
                 .map_err(CorporeumError::CompressionError)?;
         }
 
-        Ok(Box::new(result_cursor))
+        Ok(Box::new(Cursor::new(compressed)))
     }
 
     /// Save the corpus into a writable stream.
@@ -147,7 +146,7 @@ impl Corpus {
     /// - Compression fails
     pub fn save_into<W: Write>(&self, dest: W) -> Result<(), CorporeumError> {
         let mut serialized = Vec::new();
-        into_writer(self, Cursor::new(&mut serialized))?;
+        into_writer(self, &mut serialized)?;
 
         let mut compressor = ZlibEncoder::new(dest, Compression::best());
         compressor
