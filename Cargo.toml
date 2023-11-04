@@ -41,3 +41,15 @@ json-format = ["dep:serde_json"]
 xml-format = ["dep:serde-xml-rs"]
 rmp-format = ["dep:rmp-serde"]
 bincode-format = ["dep:bincode"]
+
+# Convenience
+full = [
+    "flate2-compression",
+    "zstd-compression",
+    "lzma-compression",
+    "cbor-format",
+    "json-format",
+    "xml-format",
+    "rmp-format",
+    "bincode-format",
+]
