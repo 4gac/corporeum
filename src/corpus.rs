@@ -66,7 +66,7 @@ impl Corpus {
             }
         }
 
-        match format {
+        Ok(match format {
             #[cfg(feature = "cbor-format")]
             Format::Cbor => ciborium::from_reader(raw.as_slice())?,
             #[cfg(feature = "json-format")]
@@ -77,9 +77,7 @@ impl Corpus {
             Format::Rmp => rmp_serde::decode::from_slice(&raw)?,
             #[cfg(feature = "bincode-format")]
             Format::Bincode => bincode::deserialize(&raw)?,
-        }
-
-        todo!()
+        })
     }
 
     #[allow(unused_assignments)] // Wrong?
