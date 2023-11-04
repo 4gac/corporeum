@@ -54,11 +54,12 @@ impl_error_conversion!(
     ciborium::ser::Error<std::io::Error> => SerializeError
 );
 
-impl_error_conversion!("json-format", serde_json::Error => SerializeError);
-impl_error_conversion!("xml-format", serde_xml_rs::Error => DeserializeError);
-impl_error_conversion!("rmp-format", rmp_serde::decode::Error => DeserializeError);
 impl_error_conversion!("rmp-format", rmp_serde::encode::Error => SerializeError);
-impl_error_conversion!("bincode-format", bincode::Error => DeserializeError);
+impl_error_conversion!("rmp-format", rmp_serde::decode::Error => DeserializeError);
+
+/*
+serde_json, serde_xml_rs and bincode don't have separate error types for de/serialization
+*/
 
 impl From<FromUtf8Error> for CorporeumError {
     fn from(value: FromUtf8Error) -> Self {

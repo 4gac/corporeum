@@ -72,13 +72,16 @@ impl Corpus {
             #[cfg(feature = "cbor-format")]
             Format::Cbor => ciborium::from_reader(raw.as_slice())?,
             #[cfg(feature = "json-format")]
-            Format::Json => serde_json::de::from_slice(&raw)?,
+            Format::Json => serde_json::de::from_slice(&raw)
+                .map_err(|e| CorporeumError::DeserializeError(e.to_string()))?,
             #[cfg(feature = "xml-format")]
-            Format::Xml => serde_xml_rs::de::from_reader(raw.as_slice())?,
+            Format::Xml => serde_xml_rs::de::from_reader(raw.as_slice())
+                .map_err(|e| CorporeumError::DeserializeError(e.to_string()))?,
             #[cfg(feature = "rmp-format")]
             Format::Rmp => rmp_serde::decode::from_slice(&raw)?,
             #[cfg(feature = "bincode-format")]
-            Format::Bincode => bincode::deserialize(&raw)?,
+            Format::Bincode => bincode::deserialize(&raw)
+                .map_err(|e| CorporeumError::DeserializeError(e.to_string()))?,
         })
     }
 
@@ -110,13 +113,20 @@ impl Corpus {
                 serialized
             }
             #[cfg(feature = "json-format")]
-            Format::Json => serde_json::to_string(self)?.bytes().collect(),
+            Format::Json => serde_json::to_string(self)
+                .map_err(|e| CorporeumError::SerializeError(e.to_string()))?
+                .bytes()
+                .collect(),
             #[cfg(feature = "xml-format")]
-            Format::Xml => serde_xml_rs::to_string(self)?.bytes().collect(),
+            Format::Xml => serde_xml_rs::to_string(self)
+                .map_err(|e| CorporeumError::SerializeError(e.to_string()))?
+                .bytes()
+                .collect(),
             #[cfg(feature = "rmp-format")]
             Format::Rmp => rmp_serde::to_vec(self)?,
             #[cfg(feature = "bincode-format")]
-            Format::Bincode => bincode::serialize(self)?,
+            Format::Bincode => bincode::serialize(self)
+                .map_err(|e| CorporeumError::SerializeError(e.to_string()))?,
         };
 
         if let Some(format) = compression {
