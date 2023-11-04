@@ -29,7 +29,7 @@ impl Corpus {
     }
 
     pub fn load<R: Read>(
-        source: R,
+        mut source: R,
         format: Format,
         compression: Option<Compression>,
     ) -> Result<Self, CorporeumError> {
@@ -64,6 +64,8 @@ impl Corpus {
                     })?;
                 }
             }
+        } else {
+            source.read_to_end(&mut raw)?;
         }
 
         Ok(match format {
@@ -139,6 +141,8 @@ impl Corpus {
                     xz_compress(&mut buffered_source, &mut dest)?;
                 }
             }
+        } else {
+            dest.write_all(&raw)?;
         }
 
         Ok(())
