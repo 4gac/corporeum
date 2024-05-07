@@ -18,10 +18,10 @@ pub enum CorporeumError {
     /// The input caused serde to recurse too much.
     FailedToParseRecursionLimitExceeded,
     /// An error occurred while processing a parsed value.
-    FailedToParseSemantic(Option<usize>, String),
+    FailedToParseSemantic(Option<usize>, Option<usize>),
     /// An error occurred while parsing bytes.
     /// Contains the offset into the stream where the syntax error occurred.
-    SyntaxError(usize),
+    SyntaxError(std::io::Error),
     /// Failed to write serialized data to a stream.
     FailedSerializedWrite(std::io::Error),
     /// Failed to serialize a value.
@@ -44,11 +44,11 @@ impl fmt::Display for CorporeumError {
                     "Failed to parse corporeum file while parsing bytes at offset: {offset}"
                 )
             }
-            Self::FailedToParseSemantic(opt, s) => {
+            Self::FailedToParseSemantic(line, column) => {
                 write!(
                     f,
-                    "Failed to parse corporeum file while processing parsed value: {}, {s}",
-                    opt.unwrap_or_default(),
+                    "Failed to parse corporeum file while processing parsed value: line {}, column {}",
+                    line.unwrap_or_default(), column.unwrap_or_default()
                 )
             }
             Self::FailedToParseRecursionLimitExceeded => write!(
@@ -69,26 +69,15 @@ impl fmt::Display for CorporeumError {
     }
 }
 
-impl From<ciborium::de::Error<std::io::Error>> for CorporeumError {
-    fn from(err: ciborium::de::Error<std::io::Error>) -> Self {
-        match err {
-            ciborium::de::Error::Io(err) => Self::FailedToParseIO(err),
-            ciborium::de::Error::Syntax(offset) => Self::SyntaxError(offset),
-            ciborium::de::Error::Semantic(offset, desc) => {
-                Self::FailedToParseSemantic(offset, desc)
+impl From<serde_json::Error> for CorporeumError {
+    fn from(err: serde_json::Error) -> Self {
+        match err.classify() {
+            serde_json::error::Category::Io => Self::IOFailed(err.into()),
+            serde_json::error::Category::Syntax => Self::SyntaxError(err.into()),
+            serde_json::error::Category::Data => {
+                Self::FailedToParseSemantic(Some(err.line()), Some(err.column()))
             }
-            ciborium::de::Error::RecursionLimitExceeded => {
-                Self::FailedToParseRecursionLimitExceeded
-            }
-        }
-    }
-}
-
-impl From<ciborium::ser::Error<std::io::Error>> for CorporeumError {
-    fn from(err: ciborium::ser::Error<std::io::Error>) -> Self {
-        match err {
-            ciborium::ser::Error::Io(err) => Self::FailedSerializedWrite(err),
-            ciborium::ser::Error::Value(desc) => Self::BadValue(desc),
+            serde_json::error::Category::Eof => Self::IOFailed(err.into()),
         }
     }
 }

@@ -1,10 +1,10 @@
 [package]
 name = "corporum"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Fero Forgac <fero4gac@protonmail.com>"]
 
 [dependencies]
 serde = { version = "1.0.152", features = ["derive"] }
-ciborium = "0.2.1"
+serde_json = "1.0"
 flate2 = "1.0.26"

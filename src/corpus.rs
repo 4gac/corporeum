@@ -1,5 +1,5 @@
-use ciborium::{from_reader, into_writer};
 use flate2::{read::ZlibDecoder, write::ZlibEncoder, Compression};
+use serde_json::from_reader;
 use std::io::{Cursor, Read, Write};
 
 use crate::{
@@ -47,15 +47,39 @@ impl Corpus {
     /// This will return an error if:
     /// - The contents could not be decompressed.
     /// - The contents could not be deserialized.
-    pub fn load<R: Read>(source: R) -> Result<Self, CorporeumError> {
-        let mut decompressed = Vec::new();
-        let mut decompressor = ZlibDecoder::new(source);
+    pub fn load<R: Read>(mut source: R) -> Result<Self, CorporeumError> {
+        let mut header = [0u8; 2];
+        source.read_exact(&mut header)?;
 
-        decompressor
-            .read_to_end(&mut decompressed)
-            .map_err(CorporeumError::DecompressionError)?;
+        let compression_method = header[0] & 0x0F;
+        let compression_info = header[0] >> 4;
 
-        Ok(from_reader(decompressed.as_slice())?)
+        let _fcheck = header[1] & 0x1F;
+        let checksum = (header[0] as u16 * 256 + header[1] as u16) % 31;
+
+        if compression_method == 0b1000 && checksum == 0b0 && compression_info <= 0b111 {
+            let mut decompressed = Vec::new();
+            let mut decompressor = ZlibDecoder::new(source);
+            decompressor
+                .read_to_end(&mut decompressed)
+                .map_err(CorporeumError::DecompressionError)?;
+
+            return Ok(from_reader(decompressed.as_slice())?);
+        }
+
+        Ok(from_reader(source)?)
+    }
+
+    pub fn save_stream(&self) -> Result<Box<dyn Read>, CorporeumError> {
+        let serialized = serde_json::ser::to_vec(&self)?;
+
+        Ok(Box::new(Cursor::new(serialized)))
+    }
+
+    pub fn save_stream_pretty(&self) -> Result<Box<dyn Read>, CorporeumError> {
+        let serialized = serde_json::ser::to_vec_pretty(&self)?;
+
+        Ok(Box::new(Cursor::new(serialized)))
     }
 
     /// Save the corpus into a readable stream of bytes.
@@ -83,10 +107,9 @@ impl Corpus {
     /// This will return an error if:
     /// - The serialization fails
     /// - Compression fails
-    pub fn save_stream(&self) -> Result<Box<dyn Read>, CorporeumError> {
-        let mut serialized = Vec::new();
+    pub fn save_stream_compressed(&self) -> Result<Box<dyn Read>, CorporeumError> {
+        let serialized = serde_json::ser::to_vec(&self)?;
         let mut compressed = Vec::new();
-        into_writer(self, &mut serialized)?;
 
         {
             let mut compressor = ZlibEncoder::new(&mut compressed, Compression::best());
@@ -97,6 +120,20 @@ impl Corpus {
         }
 
         Ok(Box::new(Cursor::new(compressed)))
+    }
+
+    pub fn save_into<W: Write>(&self, mut dest: W) -> Result<(), CorporeumError> {
+        let serialized = serde_json::ser::to_vec(&self)?;
+
+        dest.write_all(&serialized)?;
+        Ok(())
+    }
+
+    pub fn save_into_pretty<W: Write>(&self, mut dest: W) -> Result<(), CorporeumError> {
+        let serialized = serde_json::ser::to_vec_pretty(&self)?;
+
+        dest.write_all(&serialized)?;
+        Ok(())
     }
 
     /// Save the corpus into a writable stream.
@@ -144,9 +181,8 @@ impl Corpus {
     /// This will return an error if:
     /// - The serialization fails
     /// - Compression fails
-    pub fn save_into<W: Write>(&self, dest: W) -> Result<(), CorporeumError> {
-        let mut serialized = Vec::new();
-        into_writer(self, &mut serialized)?;
+    pub fn save_into_compressed<W: Write>(&self, dest: W) -> Result<(), CorporeumError> {
+        let serialized = serde_json::ser::to_vec(&self)?;
 
         let mut compressor = ZlibEncoder::new(dest, Compression::best());
         compressor
