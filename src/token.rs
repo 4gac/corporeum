@@ -16,15 +16,19 @@ impl Token {
         }
     }
 
-    pub fn get_form(&self) -> &str {
+    pub fn form(&self) -> &str {
         &self.form
     }
 
-    pub fn get_form_mut(&mut self) -> &mut String {
+    pub fn form_mut(&mut self) -> &mut String {
         &mut self.form
     }
 
-    pub fn get_lemma(&self) -> Option<&str> {
+    pub fn set_form(&mut self, form: &str) {
+        self.form = form.to_string();
+    }
+
+    pub fn lemma(&self) -> Option<&str> {
         self.lemma.as_deref()
     }
 
@@ -36,7 +40,7 @@ impl Token {
         self.lemma = None;
     }
 
-    pub fn get_upos(&self) -> Option<&str> {
+    pub fn upos(&self) -> Option<&str> {
         self.upos.as_deref()
     }
 
@@ -48,7 +52,7 @@ impl Token {
         self.upos = None;
     }
 
-    pub fn get_xpos(&self) -> Option<&str> {
+    pub fn xpos(&self) -> Option<&str> {
         self.xpos.as_deref()
     }
 
@@ -60,7 +64,7 @@ impl Token {
         self.xpos = None;
     }
 
-    pub fn get_feats(&self) -> Option<&str> {
+    pub fn feats(&self) -> Option<&str> {
         self.feats.as_deref()
     }
 
@@ -72,7 +76,7 @@ impl Token {
         self.feats = None;
     }
 
-    pub fn get_head(&self) -> Option<&str> {
+    pub fn head(&self) -> Option<&str> {
         self.head.as_deref()
     }
 
@@ -84,7 +88,7 @@ impl Token {
         self.head = None;
     }
 
-    pub fn get_deprel(&self) -> Option<&str> {
+    pub fn deprel(&self) -> Option<&str> {
         self.deprel.as_deref()
     }
 
@@ -96,7 +100,7 @@ impl Token {
         self.deprel = None;
     }
 
-    pub fn get_deps(&self) -> Option<&str> {
+    pub fn deps(&self) -> Option<&str> {
         self.deps.as_deref()
     }
 
@@ -108,7 +112,7 @@ impl Token {
         self.deps = None;
     }
 
-    pub fn get_misc(&self) -> Option<&str> {
+    pub fn misc(&self) -> Option<&str> {
         self.misc.as_deref()
     }
 

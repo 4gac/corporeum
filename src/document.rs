@@ -14,7 +14,7 @@ impl Document {
     }
 
     /// Return the ID of this document.
-    pub const fn get_doc_id(&self) -> u32 {
+    pub const fn doc_id(&self) -> u32 {
         self.id
     }
 
@@ -46,11 +46,11 @@ impl Document {
     /// let mut corp = Corpus::new();
     /// let mut doc = corp.create_doc();
     /// let sentence = doc.create_sentence("en");
-    /// let sentence_id = sentence.get_sentence_id();
+    /// let sentence_id = sentence.sentence_id();
     /// doc.add_sentence(sentence).unwrap_err();
     ///
     /// // This sentence is empty, so it will *not* be added
-    /// assert!(doc.get_sentence(sentence_id).is_none());
+    /// assert!(doc.sentence(sentence_id).is_none());
     /// ```
     ///
     /// # Errors
@@ -74,7 +74,7 @@ impl Document {
     ///
     /// let src = File::open("some_file.ucf").unwrap();
     /// let mut corp = Corpus::load(src).unwrap();
-    /// let mut doc = corp.get_doc_mut(0).unwrap();
+    /// let mut doc = corp.doc_mut(0).unwrap();
     /// doc.remove_sentence(0).unwrap();
     /// ```
     ///
@@ -100,13 +100,13 @@ impl Document {
     ///
     /// let src = File::open("some_file.ucf").unwrap();
     /// let mut corp = Corpus::load(src).unwrap();
-    /// let mut doc = corp.get_doc_mut(0).unwrap();
+    /// let mut doc = corp.doc_mut(0).unwrap();
     ///
-    /// for sentence in doc.get_sentences() {
+    /// for sentence in doc.sentences() {
     ///     println!("{sentence:#?}");
     /// }
     /// ```
-    pub const fn get_sentences(&self) -> &Vec<Sentence<Source>> {
+    pub const fn sentences(&self) -> &Vec<Sentence<Source>> {
         &self.sentences
     }
 
@@ -119,9 +119,9 @@ impl Document {
     /// let mut corp = Corpus::new();
     /// let mut doc = corp.create_doc();
     ///
-    /// assert!(doc.get_sentence(0).is_none());
+    /// assert!(doc.sentence(0).is_none());
     /// ```
-    pub fn get_sentence(&self, id: u32) -> Option<&Sentence<Source>> {
+    pub fn sentence(&self, id: u32) -> Option<&Sentence<Source>> {
         self.sentences.iter().find(|&sent| sent.id == id)
     }
 
@@ -134,9 +134,9 @@ impl Document {
     /// let mut corp = Corpus::new();
     /// let mut doc = corp.create_doc();
     ///
-    /// assert!(doc.get_sentence(0).is_none());
+    /// assert!(doc.sentence(0).is_none());
     /// ```
-    pub fn get_sentence_mut(&mut self, id: u32) -> Option<&mut Sentence<Source>> {
+    pub fn sentence_mut(&mut self, id: u32) -> Option<&mut Sentence<Source>> {
         self.sentences.iter_mut().find(|sent| sent.id == id)
     }
 }

@@ -37,16 +37,20 @@ impl Sentence<Source> {
         self.translations.remove(id);
     }
 
-    pub const fn get_translations(&self) -> &Vec<Sentence<Target>> {
-        &self.translations
-    }
-
-    pub fn get_translation(&self, id: u32) -> Option<&Sentence<Target>> {
+    pub fn translation(&self, id: u32) -> Option<&Sentence<Target>> {
         self.translations.iter().find(|trans| trans.id == id)
     }
 
     pub fn get_translation_mut(&mut self, id: u32) -> Option<&mut Sentence<Target>> {
         self.translations.iter_mut().find(|trans| trans.id == id)
+    }
+
+    pub const fn translations(&self) -> &Vec<Sentence<Target>> {
+        &self.translations
+    }
+
+    pub fn translations_mut(&mut self) -> &mut Vec<Sentence<Target>> {
+        &mut self.translations
     }
 }
 
@@ -81,11 +85,20 @@ impl<T> Sentence<T> {
         self.tokens.push(token);
     }
 
-    pub const fn get_tokens(&self) -> &Vec<Token> {
+    pub const fn tokens(&self) -> &Vec<Token> {
         &self.tokens
     }
 
-    pub const fn get_sentence_id(&self) -> u32 {
+    pub const fn sentence_id(&self) -> u32 {
         self.id
+    }
+
+    pub fn to_text(&self) -> String {
+        return self
+            .tokens()
+            .iter()
+            .map(|t| t.form())
+            .collect::<Vec<&str>>()
+            .join(" ");
     }
 }

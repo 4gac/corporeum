@@ -85,7 +85,7 @@ impl Metadata {
     ///
     /// println!("{author:?}");
     /// ```
-    pub fn get_author(&self, first_name: &str, last_name: &str) -> Option<&Author> {
+    pub fn author(&self, first_name: &str, last_name: &str) -> Option<&Author> {
         self.authors
             .iter()
             .find(|author| author.first_name == first_name && author.last_name == last_name)

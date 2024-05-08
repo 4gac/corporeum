@@ -195,12 +195,12 @@ impl Corpus {
     }
 
     /// Return a reference to Metadata.
-    pub const fn get_metadata(&self) -> Option<&Metadata> {
+    pub const fn metadata(&self) -> Option<&Metadata> {
         self.metadata.as_ref()
     }
 
     /// Return a mutable reference to Metadata.
-    pub fn get_metadata_mut(&mut self) -> Option<&mut Metadata> {
+    pub fn metadata_mut(&mut self) -> Option<&mut Metadata> {
         self.metadata.as_mut()
     }
 
@@ -211,25 +211,25 @@ impl Corpus {
     }
 
     /// Return a list of documents in the corpus.
-    pub const fn get_docs(&self) -> &Vec<Document> {
+    pub const fn docs(&self) -> &Vec<Document> {
         &self.documents
     }
 
     /// Return a mutable reference to documents in the corpus.
-    pub fn get_docs_mut(&mut self) -> &mut Vec<Document> {
+    pub fn docs_mut(&mut self) -> &mut Vec<Document> {
         &mut self.documents
     }
 
     /// Fetch a document in the `Corpus` by id and return a reference to it.
     /// Returns `None` if the document does not exist in the corpus.
-    pub fn get_doc(&self, id: u32) -> Option<&Document> {
-        self.documents.iter().find(|&doc| doc.get_doc_id() == id)
+    pub fn doc(&self, id: u32) -> Option<&Document> {
+        self.documents.iter().find(|&doc| doc.doc_id() == id)
     }
 
     /// Fetch a document in the `Corpus` by id and return a mutable reference to it.
     /// Returns `None` if the document does not exist in the corpus.
-    pub fn get_doc_mut(&mut self, id: u32) -> Option<&mut Document> {
-        self.documents.iter_mut().find(|doc| doc.get_doc_id() == id)
+    pub fn doc_mut(&mut self, id: u32) -> Option<&mut Document> {
+        self.documents.iter_mut().find(|doc| doc.doc_id() == id)
     }
 
     /// Creates a new empty document with a unique ID.
@@ -261,7 +261,7 @@ impl Corpus {
     /// # Errors
     /// This will return an error if the corpus does not contain a document
     /// with the specified ID.
-    pub fn remove_document(&mut self, id: u32) -> Result<(), CorporeumError> {
+    pub fn remove_doc(&mut self, id: u32) -> Result<(), CorporeumError> {
         if id as usize >= self.documents.len() {
             return Err(CorporeumError::ElementNotFound(format!(
                 "Document with ID {id} does not exist"
