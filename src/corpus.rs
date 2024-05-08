@@ -1,6 +1,6 @@
 use flate2::{read::ZlibDecoder, write::ZlibEncoder, Compression};
 use serde_json::from_reader;
-use std::io::{Cursor, Read, Write};
+use std::io::{Cursor, Read, Seek, SeekFrom, Write};
 
 use crate::{
     schema::{Corpus, Document, Metadata},
@@ -47,9 +47,11 @@ impl Corpus {
     /// This will return an error if:
     /// - The contents could not be decompressed.
     /// - The contents could not be deserialized.
-    pub fn load<R: Read>(mut source: R) -> Result<Self, CorporeumError> {
+    pub fn load<R: Read + Seek>(mut source: R) -> Result<Self, CorporeumError> {
         let mut header = [0u8; 2];
         source.read_exact(&mut header)?;
+
+        source.seek(SeekFrom::Start(0))?;
 
         let compression_method = header[0] & 0x0F;
         let compression_info = header[0] >> 4;
