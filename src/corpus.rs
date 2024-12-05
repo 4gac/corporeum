@@ -1,4 +1,3 @@
-use ciborium::{from_reader, into_writer};
 use flate2::{read::ZlibDecoder, write::ZlibEncoder, Compression};
 use std::io::{Cursor, Read, Write};
 
@@ -55,7 +54,7 @@ impl Corpus {
             Box::new(source)
         };
 
-        Ok(from_reader(real_source)?)
+        Ok(serde_json::from_reader(real_source)?)
     }
 
     /// Save the corpus into a readable stream of bytes.
@@ -83,20 +82,15 @@ impl Corpus {
     /// This will return an error if:
     /// - The serialization fails
     /// - Compression fails
-    pub fn save_stream(&self) -> Result<Box<dyn Read>, CorporeumError> {
-        let mut serialized = Vec::new();
-        let mut compressed = Vec::new();
-        into_writer(self, &mut serialized)?;
+    pub fn save_stream(
+        &self,
+        compression: bool,
+        pretty: bool,
+    ) -> Result<Box<dyn Read>, CorporeumError> {
+        let mut backend = Vec::new();
+        self.save_into(&mut backend, compression, pretty)?;
 
-        {
-            let mut compressor = ZlibEncoder::new(&mut compressed, Compression::best());
-
-            compressor
-                .write_all(&serialized)
-                .map_err(CorporeumError::CompressionError)?;
-        }
-
-        Ok(Box::new(Cursor::new(compressed)))
+        Ok(Box::new(Cursor::new(backend)))
     }
 
     /// Save the corpus into a writable stream.
@@ -144,14 +138,23 @@ impl Corpus {
     /// This will return an error if:
     /// - The serialization fails
     /// - Compression fails
-    pub fn save_into<W: Write>(&self, dest: W) -> Result<(), CorporeumError> {
-        let mut serialized = Vec::new();
-        into_writer(self, &mut serialized)?;
+    pub fn save_into<W: Write>(
+        &self,
+        dest: W,
+        compression: bool,
+        pretty: bool,
+    ) -> Result<(), CorporeumError> {
+        let real_writer: Box<dyn Write> = if compression {
+            Box::new(ZlibEncoder::new(dest, Compression::best()))
+        } else {
+            Box::new(dest)
+        };
 
-        let mut compressor = ZlibEncoder::new(dest, Compression::best());
-        compressor
-            .write_all(&serialized)
-            .map_err(CorporeumError::CompressionError)?;
+        if pretty {
+            serde_json::to_writer_pretty(real_writer, self)?;
+        } else {
+            serde_json::to_writer(real_writer, self)?;
+        }
 
         Ok(())
     }
