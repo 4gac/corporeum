@@ -29,6 +29,7 @@ impl Corpus {
     }
 
     /// Load an already existing corpus from a stream.
+    /// If the stream contains a compressed JSON, `compression` must be set to `true`, otherwise `false`.
     ///
     /// # Example
     /// ```no_run
@@ -47,15 +48,14 @@ impl Corpus {
     /// This will return an error if:
     /// - The contents could not be decompressed.
     /// - The contents could not be deserialized.
-    pub fn load<R: Read>(source: R) -> Result<Self, CorporeumError> {
-        let mut decompressed = Vec::new();
-        let mut decompressor = ZlibDecoder::new(source);
+    pub fn load<R: Read>(source: R, compression: bool) -> Result<Self, CorporeumError> {
+        let real_source: Box<dyn Read> = if compression {
+            Box::new(ZlibDecoder::new(source))
+        } else {
+            Box::new(source)
+        };
 
-        decompressor
-            .read_to_end(&mut decompressed)
-            .map_err(CorporeumError::DecompressionError)?;
-
-        Ok(from_reader(decompressed.as_slice())?)
+        Ok(from_reader(real_source)?)
     }
 
     /// Save the corpus into a readable stream of bytes.
