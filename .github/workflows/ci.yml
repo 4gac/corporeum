@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain:
+          - stable
+          # - beta
+          # - nightly
+        os: 
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - windows-latest
+          - macos-latest
+          - macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          components: rustfmt, clippy
+          toolchain: ${{ matrix.toolchain }}
+      - name: Build
+        run: cargo build --quiet
+      - name: Run Clippy
+        continue-on-error: true
+        run: cargo clippy --all-targets --all-features
