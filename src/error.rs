@@ -1,91 +1,46 @@
-use core::fmt;
+use thiserror::Error;
 
 /// Represents all possible errors.
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum CorporeumError {
     /// Generic I/O operation failure.
-    IOFailed(std::io::Error),
+    #[error("I/O: {0}")]
+    Io(#[from] std::io::Error),
+
     /// Zlib decompression failed.
+    #[error("Zlib: Decompression failed: {0}")]
     DecompressionError(std::io::Error),
+
     /// Zlib compression failed.
+    #[error("Zlib: Compression failed: {0}")]
     CompressionError(std::io::Error),
+
+    /// De/Serialization error.
+    #[error("Serde: {0}")]
+    Serde(#[from] serde_json::Error),
+
     /// Specified object is empty.
+    #[error("Empty Object: {0}")]
     EmptyObject(String),
-    /// An element was not found
+
+    /// An element was not found.
+    #[error("Element not found: {0}")]
     ElementNotFound(String),
-    /// Failed to deserialize an object.
-    FailedToParseIO(std::io::Error),
+
     /// The input caused serde to recurse too much.
+    #[error("Recursion limit exceeded")]
     FailedToParseRecursionLimitExceeded,
+
     /// An error occurred while processing a parsed value.
-    FailedToParseSemantic(Option<usize>, Option<usize>),
+    #[error("Semantic: {0:?}, {1}")]
+    FailedToParseSemantic(Option<usize>, String),
+
     /// An error occurred while parsing bytes.
     /// Contains the offset into the stream where the syntax error occurred.
-    SyntaxError(std::io::Error),
-    /// Failed to write serialized data to a stream.
-    FailedSerializedWrite(std::io::Error),
+    #[error("Syntax Error at offset {0}")]
+    SyntaxError(usize),
+
     /// Failed to serialize a value.
+    #[error("Bad Value: {0}")]
     BadValue(String),
 }
-
-impl fmt::Display for CorporeumError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::IOFailed(err) => write!(f, "{err}"),
-            Self::FailedToParseIO(err) => {
-                write!(
-                    f,
-                    "Failed to parse corporeum file while reading bytes: {err}"
-                )
-            }
-            Self::SyntaxError(offset) => {
-                write!(
-                    f,
-                    "Failed to parse corporeum file while parsing bytes at offset: {offset}"
-                )
-            }
-            Self::FailedToParseSemantic(line, column) => {
-                write!(
-                    f,
-                    "Failed to parse corporeum file while processing parsed value: line {}, column {}",
-                    line.unwrap_or_default(), column.unwrap_or_default()
-                )
-            }
-            Self::FailedToParseRecursionLimitExceeded => write!(
-                f,
-                "Failed to parse corporeum file due to exceeding the recursion limit"
-            ),
-            Self::FailedSerializedWrite(err) => {
-                write!(f, "An error occurred while writing bytes: {err}")
-            }
-            Self::BadValue(desc) => {
-                write!(f, "Value cannot be serialized: {desc}")
-            }
-            Self::DecompressionError(err) => write!(f, "Decompression failed: {err}"),
-            Self::CompressionError(err) => write!(f, "Compression failed: {err}"),
-            Self::EmptyObject(desc) => write!(f, "Empty object: {desc}"),
-            Self::ElementNotFound(desc) => write!(f, "{desc}"),
-        }
-    }
-}
-
-impl From<serde_json::Error> for CorporeumError {
-    fn from(err: serde_json::Error) -> Self {
-        match err.classify() {
-            serde_json::error::Category::Io => Self::IOFailed(err.into()),
-            serde_json::error::Category::Syntax => Self::SyntaxError(err.into()),
-            serde_json::error::Category::Data => {
-                Self::FailedToParseSemantic(Some(err.line()), Some(err.column()))
-            }
-            serde_json::error::Category::Eof => Self::IOFailed(err.into()),
-        }
-    }
-}
-
-impl From<std::io::Error> for CorporeumError {
-    fn from(err: std::io::Error) -> Self {
-        Self::IOFailed(err)
-    }
-}
-
-impl std::error::Error for CorporeumError {}
