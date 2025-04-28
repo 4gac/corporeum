@@ -2,7 +2,7 @@
 name = "corporum"
 version = "0.2.0"
 edition = "2021"
-authors = ["Fero Forgac <fero4gac@protonmail.com>"]
+authors = ["Fero Forgac <4gac@users.noreply.github.com>"]
 
 [dependencies]
 serde = { version = "1.0.152", features = ["derive"] }
