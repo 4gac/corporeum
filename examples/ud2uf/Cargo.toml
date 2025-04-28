@@ -1,0 +1,12 @@
+[package]
+name = "ud2uf"
+version = "0.1.0"
+rust-version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[dependencies]
+uniform = { path = "../../uniform" }
+
+rayon = "1.10"
+walkdir = "2.5.0"
