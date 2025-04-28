@@ -1,6 +1,8 @@
 [workspace]
-members = ["uniform"]
+members = ["examples/*", "uniform"]
 resolver = "2"
+
+default-members = ["uniform"]
 
 [workspace.package]
 rust-version = "1.86.0"
